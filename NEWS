@@ -1,0 +1,21 @@
+v1.0.5 created on Mar. 12, 2019
+  (1) revised DESCRIPTION file based on CRAN's comments:
+  Please omit the redundant "We provide novel..." and start your description with "Visualization functions ...".
+  Please explain all acronyms (e.g. PCA) in your Description field to avoid misunderstandings.
+
+v1.0.4 created on Mar. 7, 2019
+  (1) revised back Dependency to R 3.5.0 since Writting R extension document mentions that
+  "It is inadvisable to use a dependence on R with patchlevel (the third digit) other than
+zero. Doing so with packages which others depend on will cause the other packages to become
+unusable under earlier versions in the series, and e.g. versions 3.x.1 are widely used throughout the Northern Hemisphere academic year."
+
+v1.0.3 created on Mar. 7, 2019
+  (1) Dependency R 3.5.2
+v1.0.2 created on Mar. 7, 2019
+  (1) The warning "'BiocInstaller' and 'biocLite()' are deprecated, use the 'BiocManager' CRAN
+" is caused by the loading of 'ggplot2' package. Try to increase R dependency to R3.5.1 to solve this problem
+v1.0.1 created on Mar. 7, 2019
+  (1) fixed 1 warning and 2 notes reported by CRAN teams' auto-check service
+  (2) deleted unused functions and comments in R files
+v1.0.0 created on Feb. 19, 2019
+  (1) ready for submission
