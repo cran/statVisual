@@ -8,16 +8,16 @@ Heatmap with Row Names Colored by Group
 Heatmap with row names colored by group.
 }
 \usage{
-Heat(
-    data, 
-    group = NULL, 
-    cexCol = 0.2 + 1/log10(nrow(data)), 
-    cexRow = 0.2 + 1/log10(ncol(data)), 
-    dendrogram = "both", 
-    scale = "column", 
-    axis.text.x.angle = NULL, 
-    axis.text.y.angle = NULL, 
-    ...)
+Heat(data, 
+     group = NULL, 
+     fontsize_row=10,
+     fontsize_col=10, 
+     scale = "none",
+     cluster_rows = TRUE,
+     cluster_cols = TRUE,
+     color = colorRampPalette(rev(brewer.pal(n = 7, name ="RdYlBu")))(100),
+     angle_col = c("270", "0", "45", "90", "315"), 
+     ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,28 +27,29 @@ Heat(
   \item{group}{
 	  character. The column name of \code{data} that indicates the subject groups. The row names of the heatmap will be colored based on \code{group}.
 }
-  \item{cexCol}{
+  \item{fontsize_col}{
 	  x axis label font size
 }
-  \item{cexRow}{
+  \item{fontsize_row}{
 	  y axis label font size
-}
-  \item{dendrogram}{
-	  character. Indicate dendrogram options:
-	 \dQuote{both} (default), \dQuote{row}, \dQuote{column}, 
-	 \dQuote{none}.
 }
   \item{scale}{
 	  character. Indicate how data will be scaled: 
 	  \dQuote{none} (i.e., no scaling), \dQuote{row} (i.e., row scaled), 
 	  \dQuote{column} (i.e., column scaled).
 }
-
-  \item{axis.text.x.angle}{
-	  angle of row labels, in degrees from horizontal.
+ \item{cluster_rows}{
+	  logic. Indicates if rows should be clustered.
 }
-  \item{axis.text.y.angle}{
-	  angle of column labels, in degrees from horizontal.
+  \item{cluster_cols}{
+  logic. Indicates if columns should be clustered.
+	  
+}
+  \item{color}{
+  vector indicating colors used in heatmap
+}
+  \item{angle_col}{
+  angle of the column labels. Please refer to the manual in \code{\link{pheatmap}}
 }
   \item{\dots}{
 	  other input parameters for facet & theme.
@@ -72,9 +73,9 @@ Weiliang Qiu <Weiliang.Qiu@sanofi.com>,
 Xuan Lin <Xuan.Lin@sanofi.com>,
 Donghui Zhang <Donghui.Zhang@sanofi.com>
 }
-%\note{
-%%  ~~further notes~~
-%}
+\note{
+This function is based on the function \code{\link{pheatmap}} in \code{pheatmap} R package.
+}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
@@ -116,21 +117,11 @@ print(table(pDat$grp, useNA = "ifany"))
 
 statVisual(type = 'Heat', 
            data = pDat[, c(2:8)], 
-           group = 'grp', 
-           margins = c(5, 8), 
-           Rowv = TRUE, 
-           Colv = TRUE, 
-           scale = "column", 
-           dendrogram = "both")
+           group = 'grp')
 
 Heat(
      data = pDat[, c(2:8)], 
-     group = 'grp', 
-     margins = c(5, 8), 
-     Rowv = TRUE, 
-     Colv = TRUE, 
-     scale = "column", 
-     dendrogram = "both")
+     group = 'grp')
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

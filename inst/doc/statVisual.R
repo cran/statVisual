@@ -151,19 +151,17 @@ print(table(pDat$grp, useNA = "ifany"))
 
 ## ----message = F, eval = F, echo = T, warning = F------------------------
 #  BiAxisErrBar(
-#    data = pDat,
-#    x = 'grp',
-#    y1 = 'probe1',
-#    y2 = 'probe5',
-#    title = 'Bi-axis error bar')
+#    dat = pDat,
+#    group = 'grp',
+#    y.left = 'probe1',
+#    y.right = 'probe5')
 
 ## ----message = F, echo = T, warning = F----------------------------------
 statVisual(type = 'BiAxisErrBar', 
-           data = pDat, 
-           x = 'grp', 
-           y1 = 'probe1', 
-           y2 = 'probe5', 
-           title = 'Bi-axis error bar')
+           dat = pDat, 
+           group = 'grp', 
+           y.left = 'probe1', 
+           y.right = 'probe5') 
 
 ## ----message = F, eval = F, echo = T,warning = F-------------------------
 #  
@@ -297,22 +295,13 @@ statVisual(type = 'PCA_score',
 ## ----message = F, eval = F, echo = T, warning = F------------------------
 #  Heat(
 #       data = pDat[, c(2:8)],
-#       group = 'grp',
-#       margins = c(5, 8),
-#       Rowv = TRUE,
-#       Colv = TRUE,
-#       scale = "column",
-#       dendrogram = "both")
+#       group = 'grp')
+#  
 
 ## ----message = F, echo = T,warning = F-----------------------------------
 statVisual(type = 'Heat', 
            data = pDat[, c(2:8)], 
-           group = 'grp', 
-           margins = c(5, 8), 
-           Rowv = TRUE, 
-           Colv = TRUE, 
-           scale = "column", 
-           dendrogram = "both")
+           group = 'grp')
 
 ## ----message = F, eval = T, echo = T, warning = F------------------------
 library(pvca)

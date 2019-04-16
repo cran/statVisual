@@ -19,7 +19,11 @@ export(
 )
 
 importFrom(grDevices,
-           hcl)
+           hcl,
+           colorRampPalette)
+
+importFrom(magrittr,
+           set_colnames)
 
 importFrom(dplyr,
            "%>%",
@@ -29,7 +33,9 @@ importFrom(dplyr,
            arrange,
            desc,
            select,
-           filter_
+           filter_,
+           summarise_at,
+           funs
            )
 
 importFrom(reshape2,
@@ -99,7 +105,14 @@ importFrom(limma,
 importFrom(glmnet, 
            cv.glmnet)
 
+importFrom(pheatmap,
+           pheatmap)
 
+importFrom(RColorBrewer,
+           brewer.pal)
+
+importFrom("graphics", "arrows", "axis", "box", "mtext", "par", "plot")
+importFrom("graphics", "legend")
 
 import(ggplot2)
 import(stats)

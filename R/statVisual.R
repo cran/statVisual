@@ -1,3 +1,24 @@
+#v1.0.9 created on April 10, 2019
+#  (1) modify XYscatter. all plots have the same x-axis and y-axis range
+#  (2) set delta = 0.2 (instead of 0.5) in BiAxisErrBar
+#
+#v1.0.8 created on April 5, 2019
+#  (1) fixed a bug in 'BiAxisErrBar': no line connect means
+#v1.0.7 created on April 4, 2019
+#  (1) before set 'x' or 'group' as factor, first test if they are already factor
+# modifed on April 3 to April 4, 2019
+#  (1) fixed a bug in 'Box' function: added "+ scale_x_discrete(drop = F) + scale_fill_discrete(drop = F) +"
+#  (2) set default value for jitter.width=1 and point.size = 1
+#  (3) in 'PCA_score', add the input 'title'
+#  (4) in 'PCA_score', if 'color' not NULL, then set data[, c(color)]=as.factor(data[, c(color)])
+#  (5) added "+ xlab(label=xlab) + ylab(label=ylab)" to functions 'BoxROC', 
+#      'XYscatter', 'PVCA', 'ImpPlot'
+#  (6) fixed a bug in 'XYscatter', 'Hist', and 'Den': when 'group=NULL', there is an error
+#  (7) in 'Heat', replace 'heatmap.2' by 'pheatmap'
+#  (8) in 'LinePlot' and 'Box', set 'x' and 'group' as factor
+#  (9) in 'BiAxisErrBar', set 'x' as factor
+
+ 
 # modifed on Feb. 12, 2019
 #  (1) fixed a bug in 'Den' function. The default value of 'ylab' should be 'density', not 'count'
 #  (2) fixed a few bugs in plot functions to call ylab: Instead of using 'labs(x=xlab, y=ylab, title=title)', use 'labs(title=title)+xlab(label=xlab)+ylab(label=ylab)
@@ -150,30 +171,53 @@ XYscatter = function(data, x, y, group = NULL,
                      theme_classic = TRUE, ...) {
   # scatterplot x vs y
 
+  myx=data[, c(x)]
+  myy=data[, c(y)]
+  
+  myxlim=range(myx, na.rm=TRUE)
+  myylim=range(myy, na.rm=TRUE)
 
 
-  # QWL: update facet.var and facet.scales
-  dots = list(...)
-  if( !("facet.var" %in% names(dots)) )
+  if(!is.null(group))
   {
-    facet.var = group
-    dots = c(facet.var=facet.var, dots)
+    # QWL: update facet.var and facet.scales
+    dots = list(...)
+    if( !("facet.var" %in% names(dots)) )
+    {
+      facet.var = group
+      dots = c(facet.var=facet.var, dots)
+    }
+    if( !("facet.scales" %in% names(dots)) )
+    {
+      facet.scales = 'free'
+      dots = c(facet.scales=facet.scales, dots)
+    }
+    
+    # data: data includes x, y columns for plot at least
+    # x: variable on x axis
+    # y: variable on y axis
+    # group: grouping variable
+    
+    g = ggplot(data, aes_string(x = x, y = y, color = group)) +
+      geom_point(alpha = alpha, size = point.size) + 
+      labs(color = group.lab, title = title)+
+      xlab(label = xlab) + ylab(label = ylab) + xlim(myxlim) + ylim(myylim)
+  } else {
+    # QWL: update facet.var and facet.scales
+    dots = list(...)
+   
+    # data: data includes x, y columns for plot at least
+    # x: variable on x axis
+    # y: variable on y axis
+    # group: grouping variable
+    
+    g = ggplot(data, aes_string(x = x, y = y)) +
+      geom_point(alpha = alpha, size = point.size) + 
+      labs(title = title)+
+      xlab(label = xlab) + ylab(label = ylab) + xlim(myxlim) + ylim(myylim)
+
   }
-  if( !("facet.scales" %in% names(dots)) )
-  {
-    facet.scales = 'free'
-    dots = c(facet.scales=facet.scales, dots)
-  }
-  
-  # data: data includes x, y columns for plot at least
-  # x: variable on x axis
-  # y: variable on y axis
-  # group: grouping variable
-  
-  g = ggplot(data, aes_string(x = x, y = y, color = group)) +
-    geom_point(alpha = alpha, size = point.size) + 
-    labs(x = xlab, y = ylab, color = group.lab, title = title)
-  
+
   # add facet & theme arguments from ...
   #dots = list(...)
   FACET_args_names = FACET %>% formals %>% names
@@ -197,136 +241,107 @@ XYscatter = function(data, x, y, group = NULL,
 }
 
 # Box Plot ####
-Box = function(data, 
-               x = NULL, 
-               y, 
-               group = NULL, 
-               fill = NULL, 
-               theme_classic = TRUE, 
-               fill.alpha = 0.7, 
-               box.width = 0.5, 
-               dodge.width = 0.8, 
-               jitter = TRUE, 
-               jitter.alpha = 0.7, 
-               jitter.width = 0.1, 
-               point.size = 3, 
-               xlab = x, 
-               ylab = y, 
-               group.lab = group, 
-               fill.lab = group, 
-               title = "Boxplot",
-               line = 'mean', 
-               line.color = 'black', 
-               ...) {
-  # main function of boxplot
+Box=function (data, x = NULL, y, group = NULL, fill = NULL, theme_classic = TRUE, 
+          fill.alpha = 0.7, box.width = 0.5, dodge.width = 0.8, jitter = TRUE, 
+          jitter.alpha = 0.7, jitter.width = 1, point.size = 1, 
+          xlab = x, ylab = y, group.lab = group, fill.lab = group, 
+          title = "Boxplot", line = "mean", line.color = "black", 
+          ...) 
+{
   
-  # x: variable on x axis
-  # y: variable on y axis
-  # group: boxplot border color
-  # fill: boxplot inside color
-  # theme_classic: Use classic background without grids (default: FALSE)
-  # fill.alhpa: boxplot transparency
-  # box.width: boxplot width
-  # dodge.width: dodge width for boxplot and jitter (prevent overlapping)
-  # jitter: logical, plot jitter or not, default TRUE
-  # jitter.alpha: jitter transparency
-  # jitter.width: jitter width in boxplot
-  # line: line connect boxes, default plot mean, can be set as 'median', or NULL (no line)
-  # line.color: connection line color, only available when group = NULL
-  # xlab: x axis label
-  # ylab: y axis label
-  # group.lab: label of group variable
-  # fill.lab: label of fill variable
-  # title: title of plot
   
-  # create boxplot layer
+  # myx=paste0('`', j, '`')
+  # mycol=paste0('`', j, '`')
+  # g = ggplot(dat, aes_string(x = mycol, y = i, color = mycol)) +
+  #   geom_boxplot(outlier.size = -1) +
+  #   geom_jitter(width = 0.2, height = 0) +
+  #   scale_x_discrete(drop = F) +
+  #   scale_fill_discrete(drop = F) +
+  #   labs(title = paste('p-value =', pval), color = j, x = NULL)
+  
   if (is.null(x)) {
-    if (!is.null(group)) x = group
-    g = ggplot(data, aes_string(x = ifelse(is.null(x), '1', x), y)) + 
-      geom_boxplot(
-        aes_string(color = group, fill = fill), 
-        outlier.size = ifelse(jitter, 1.5, 0), 
-        width = box.width, 
-        alpha = fill.alpha
-      ) + 
-      labs(title = title, color=group.lab)+ xlab(label=xlab) + ylab(label=ylab)
+    if (!is.null(group)) 
+      x = group
+    if(!is.factor(data[, c(x)]))
+    {
+      data[,c(x)]=factor(data[, c(x)])
+    }
+    if(!is.factor(data[,c(group)]))
+    {
+      data[,c(group)]=factor(data[, c(group)])
+    }
 
-  } else {
-    g = ggplot(data, aes_string(x, y)) + 
-      geom_boxplot(
-        aes_string(color = group, fill = fill), 
-        outlier.size = ifelse(jitter, 1.5, 0), 
-        width = box.width, 
-        position = position_dodge(width = dodge.width), 
-        alpha = fill.alpha
-      ) + 
-      labs(title = title, color=group.lab, fill=fill.lab)+ xlab(label=xlab) + ylab(label=ylab)
-      #labs(x = xlab, y = ylab, color = group.lab, fill = fill.lab, title = title)
+    g = ggplot(data, aes_string(x=x, y=y, color=group, fill=fill)) + 
+      geom_boxplot(outlier.size = ifelse(jitter, 1.5, 0), width = box.width, alpha = fill.alpha) +
+      scale_x_discrete(drop = F) +
+      scale_fill_discrete(drop = F) +
+      labs(title = title, color = group.lab) + xlab(label = xlab) + ylab(label = ylab)
+      
   }
-  
-  # add jitter layer
+  else {
+    if(!is.factor(data[, c(x)]))
+    {
+      data[,c(x)]=factor(data[, c(x)])
+    }
+
+    if(!is.factor(data[,c(group)]))
+    {
+      data[,c(group)]=factor(data[, c(group)])
+    }
+
+    g = ggplot(data, aes_string(x, y)) + 
+	       geom_boxplot(aes_string(color = group, fill = fill), 
+			    outlier.size = ifelse(jitter, 1.5, 0), 
+	                    width = box.width, position = position_dodge(width = dodge.width), 
+                            alpha = fill.alpha) + 
+               labs(title = title, color = group.lab, fill = fill.lab) + 
+	       xlab(label = xlab) + 
+	       ylab(label = ylab)
+  }
   if (jitter) {
-    if (!is.null(group)|!is.null(fill)) {
-      g = g + geom_jitter(
-        aes_string(color = group), 
-        position = position_jitterdodge( # set up dodge position for jitters
-          dodge.width = dodge.width, # dodge width between jitters
-          jitter.width = jitter.width # jitter width in boxplot
-        ), 
-        alpha = jitter.alpha, 
-        size = point.size
-      )
-    } else {
-      g = g + geom_jitter(
-        aes_string(color = group), 
-        width = jitter.width, # jitter width in boxplot
-        alpha = jitter.alpha, 
-        size = point.size
-      )
+    if (!is.null(group) | !is.null(fill)) {
+     g = g + geom_jitter(aes_string(color = group), 
+			 position = position_jitterdodge(dodge.width = dodge.width, jitter.width = jitter.width), 
+			 alpha = jitter.alpha, size = point.size)
+    }
+    else {
+      g = g + geom_jitter(aes_string(color = group), width = jitter.width,
+                          alpha = jitter.alpha, size = point.size)
     }
   }
-  
-  # add connect line
-  if (is.null(x) & is.null(group)) line = NULL
+  if (is.null(x) & is.null(group)) 
+    line = NULL
   if (!is.null(line)) {
     if (!is.null(group)) {
       if (group != x) {
-        g = g + stat_summary(fun.y = line, geom = 'line',
-                             aes_string(group = group, color = group),
+        g = g + stat_summary(fun.y = line, geom = "line", 
+                             aes_string(group = group, color = group), 
                              position = position_dodge(dodge.width))
-      } else {
-        g = g + stat_summary(fun.y = line, geom = 'line',
+      }
+      else {
+        g = g + stat_summary(fun.y = line, geom = "line", 
                              aes_string(group = 1), color = line.color)
       }
-    } else {
-      g = g + stat_summary(fun.y = line, geom = 'line',
+    }
+    else {
+      g = g + stat_summary(fun.y = line, geom = "line", 
                            aes_string(group = 1), color = line.color)
     }
   }
-  # classical theme
   if (theme_classic) {
     g = g + theme_classic()
   }
-  # add facet & theme arguments from ...
   dots = list(...)
   FACET_args_names = FACET %>% formals %>% names
   FACET_args = dots[names(dots) %in% FACET_args_names]
   THEME_args_names = THEME %>% formals %>% names
   THEME_args = dots[names(dots) %in% THEME_args_names]
-  
-  # add facet
   if (length(FACET_args) != 0) {
     g = do.call(FACET, c(list(g = g), FACET_args))
   }
-  # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
-  
-  
-  # return plot
   g
 }
-
-
 
 # Error Bar Plot ####
 
@@ -492,6 +507,16 @@ LinePlot = function(data, x, y, sid, group = NULL,
   # ylab: y axis label
   # title: title of plot
 
+  if(!is.factor(data[, c(x)]))
+  {
+    data[, c(x)]=factor(data[, c(x)])
+  }
+  
+  if(!is.factor(data[, c(group)]))
+  {
+    data[, c(group)]=factor(data[, c(group)])
+  }
+
   # QWL: added the following call of dots
   dots = list(...)
   if( !("facet.var" %in% names(dots)) )
@@ -504,7 +529,7 @@ LinePlot = function(data, x, y, sid, group = NULL,
     facet.nrow = 2
     dots = c(facet.nrow=facet.nrow, dots)
   }
-  
+
   # default plot
   g = ggplot(data = data, aes_string(x = x, y = y, color = group, sid=sid)) + 
     geom_path(aes_string(group = sid)) +
@@ -561,38 +586,54 @@ Hist = function(data, y, group = NULL, fill = group,
   # group.lab: label of group variable
   # title: title of plot
 
-  # QWL: add the following call of dots
-  dots = list(...)
-  if( !("facet.var" %in% names(dots)) )
+  if(!is.null(group))
   {
-    facet.var = group
-    dots = c(facet.var=facet.var, dots)
-  }
-  if( !("facet.nrow" %in% names(dots)) )
-  {
-    facet.nrow = 2
-    dots = c(facet.nrow=facet.nrow, dots)
-  }
-  
-  if (is.null(bins) & is.null(binwidth)) {
-    bins = 30
-  }
-  if (is.null(group) & is.null(fill)) {
-    g = ggplot(data, aes_string(y)) + 
-      geom_histogram(
-        bins = bins, binwidth = binwidth, alpha = alpha, 
-        color = ifelse(is.null(border.color), 'black', border.color), 
-        fill = ifelse(is.null(inner.color), 'white', inner.color)
-      ) + 
-      labs(title = title, color = group.lab) + xlab(label=xlab) + ylab(label=ylab)
-  } else {
+    # QWL: add the following call of dots
+    dots = list(...)
+    if( !("facet.var" %in% names(dots)) )
+    {
+      facet.var = group
+      dots = c(facet.var=facet.var, dots)
+    }
+    if( !("facet.nrow" %in% names(dots)) )
+    {
+      facet.nrow = 2
+      dots = c(facet.nrow=facet.nrow, dots)
+    }
+    
+    if (is.null(bins) & is.null(binwidth)) {
+      bins = 30
+    }
     g = ggplot(data, aes_string(y)) + 
       geom_histogram(
         aes_string(color = group, fill = fill),  
         bins = bins, binwidth = binwidth, alpha = alpha) + 
       labs(title = title, color = group.lab) + xlab(label=xlab) + ylab(label=ylab)
+  } else {
+    # QWL: add the following call of dots
+    dots = list(...)
+   
+    if (is.null(bins) & is.null(binwidth)) {
+      bins = 30
+    }
+    if (is.null(fill)) {
+      g = ggplot(data, aes_string(y)) + 
+        geom_histogram(
+          bins = bins, binwidth = binwidth, alpha = alpha, 
+          color = ifelse(is.null(border.color), 'black', border.color), 
+          fill = ifelse(is.null(inner.color), 'white', inner.color)
+        ) + 
+        labs(title = title) + xlab(label=xlab) + ylab(label=ylab)
+    } else {
+      g = ggplot(data, aes_string(y)) + 
+        geom_histogram(
+          aes_string(fill = fill),  
+          bins = bins, binwidth = binwidth, alpha = alpha) + 
+        labs(title = title) + xlab(label=xlab) + ylab(label=ylab)
+    }
+
   }
-  
+
   # classical theme
   if (theme_classic) {
     g = g + theme_classic()
@@ -638,37 +679,50 @@ Den = function(data, y, group = NULL, fill = group,
   # group.lab: label of group variable
   # title: title of plot
 
-  # QWL: add the following call of dots
-  dots = list(...)
-  if( !("facet.var" %in% names(dots)) )
+  if(!is.null(group))
   {
-    facet.var = group
-    dots = c(facet.var=facet.var, dots)
-  }
-  if( !("facet.nrow" %in% names(dots)) )
-  {
-    facet.nrow = 2
-    dots = c(facet.nrow=facet.nrow, dots)
-  }
- 
-  
-  if (is.null(group) & is.null(fill)) {
-    g = ggplot(data, aes_string(y)) + 
-      geom_density(alpha = alpha, 
-                   color = ifelse(is.null(border.color), 'black', border.color), 
-                   fill = ifelse(is.null(inner.color), 'white', inner.color)
-      ) + 
-      labs(title = title, color = group.lab) + xlab(label=xlab) + ylab(label=ylab)
-
-  } else {
+    # QWL: add the following call of dots
+    dots = list(...)
+    if( !("facet.var" %in% names(dots)) )
+    {
+      facet.var = group
+      dots = c(facet.var=facet.var, dots)
+    }
+    if( !("facet.nrow" %in% names(dots)) )
+    {
+      facet.nrow = 2
+      dots = c(facet.nrow=facet.nrow, dots)
+    }
     g = ggplot(data, aes_string(y)) + 
       geom_density(
         aes_string(color = group, fill = fill), 
         alpha = alpha
       ) + 
       labs(title = title, color = group.lab) + xlab(label=xlab) + ylab(label=ylab)
+  } else {
+    # QWL: add the following call of dots
+    dots = list(...)
+   
+    if (is.null(fill)) {
+      g = ggplot(data, aes_string(y)) + 
+        geom_density(alpha = alpha, 
+                     color = ifelse(is.null(border.color), 'black', border.color), 
+                     fill = ifelse(is.null(inner.color), 'white', inner.color)
+        ) + 
+        labs(title = title) + xlab(label=xlab) + ylab(label=ylab)
+  
+    } else {
+      g = ggplot(data, aes_string(y)) + 
+        geom_density(
+          aes_string(fill = fill), 
+          alpha = alpha
+        ) + 
+        labs(title = title) + xlab(label=xlab) + ylab(label=ylab)
+  
+    }
 
   }
+
   # classical theme
   if (theme_classic) {
     g = g + theme_classic()
@@ -928,51 +982,97 @@ Volcano = function(resFrame, stats, p.value, group = NULL,
   g
 }
 
+#
+## Heatmap ####
+#Heat = function(data, 
+#                group = NULL, 
+#                cexCol = 0.2 + 1/log10(nrow(data)), 
+#                cexRow = 0.2 + 1/log10(ncol(data)), 
+#                dendrogram = "both", 
+#                scale = "column", 
+#                axis.text.x.angle = NULL, axis.text.y.angle = NULL, ...) {
+#  # main function of heatmap with heatmap.2 in package gplots
+#  # QWL: commented out 'require'
+#  #require(gplots)
+#  # cexRow: y axis label font size
+#  # cexCol: x axis label font size
+#  # dendrogram: dendrogram option: 'both' (default), 'row', 'column', 'none'
+#  # scale: data scaling: 'none' (default), 'row', 'column'
+#  # x.lab.angle: x axis label angle
+#  # y.lab.angle: y axis label angle
+#  # ...: additional parameter passed to heatmap.2, such as lhei, lwid, etc
+#  #     for details check ?heatmap.2
+#  
+#  # create grouping color
+#  color_hue <- function(n) {
+#    hues = seq(15, 375, length = n + 1)
+#    hcl(h = hues, l = 65, c = 100)[1:n]
+#  }
+#  # separate grouping column for y axis grouping color
+#  if (is.null(group)) {
+#    data.heat = data
+#    colors = NULL
+#  } else {
+#    data.heat = data[, names(data) != group]
+#    # assign colors to different groups
+#    grps = unique(data[, group])
+#    n = length(grps)
+#    colors = color_hue(n)[match(data[, group], grps)]
+#  }
+#  
+#  # create heatmap
+#  heatmap.2(as.matrix(data.heat), col = redgreen(256), scale = scale, 
+#            key = FALSE, trace = 'none', cexRow = cexCol, cexCol = cexRow, 
+#            dendrogram = dendrogram, colRow = colors, 
+#            srtRow = axis.text.y.angle, srtCol = axis.text.x.angle, ...)
+#}
+#
 
-# Heatmap ####
 Heat = function(data, 
-                group = NULL, 
-                cexCol = 0.2 + 1/log10(nrow(data)), 
-                cexRow = 0.2 + 1/log10(ncol(data)), 
-                dendrogram = "both", 
-                scale = "column", 
-                axis.text.x.angle = NULL, axis.text.y.angle = NULL, ...) {
-  # main function of heatmap with heatmap.2 in package gplots
-  # QWL: commented out 'require'
-  #require(gplots)
-  # cexRow: y axis label font size
-  # cexCol: x axis label font size
-  # dendrogram: dendrogram option: 'both' (default), 'row', 'column', 'none'
-  # scale: data scaling: 'none' (default), 'row', 'column'
-  # x.lab.angle: x axis label angle
-  # y.lab.angle: y axis label angle
-  # ...: additional parameter passed to heatmap.2, such as lhei, lwid, etc
-  #     for details check ?heatmap.2
-  
-  # create grouping color
-  color_hue <- function(n) {
-    hues = seq(15, 375, length = n + 1)
-    hcl(h = hues, l = 65, c = 100)[1:n]
-  }
+                 group = NULL, 
+                 fontsize_row=10,
+                 fontsize_col=10, 
+                 scale = "none",
+                 cluster_rows = TRUE,
+                 cluster_cols = TRUE,
+                 color = colorRampPalette(rev(brewer.pal(n = 7, name ="RdYlBu")))(100),
+                 angle_col = c("270", "0", "45", "90", "315"), ...) {
+
   # separate grouping column for y axis grouping color
   if (is.null(group)) {
     data.heat = data
-    colors = NULL
+
+    annotation_row = NULL
   } else {
     data.heat = data[, names(data) != group]
-    # assign colors to different groups
-    grps = unique(data[, group])
-    n = length(grps)
-    colors = color_hue(n)[match(data[, group], grps)]
+
+    if(!is.factor(data[, c(group)]))
+    {
+      annotation_row = data.frame(
+        rowClass = factor(data[, c(group)])
+      )
+    } else {
+      annotation_row = data.frame(
+        rowClass = data[, c(group)]
+      )
+    }
+    rownames(annotation_row) = rownames(data)
+      
   }
   
-  # create heatmap
-  heatmap.2(as.matrix(data.heat), col = redgreen(256), scale = scale, 
-            key = FALSE, trace = 'none', cexRow = cexCol, cexCol = cexRow, 
-            dendrogram = dendrogram, colRow = colors, 
-            srtRow = axis.text.y.angle, srtCol = axis.text.x.angle, ...)
-}
 
+  # create heatmap
+  pheatmap(mat=as.matrix(data.heat), 
+           fontsize_row = fontsize_row, 
+           fontsize_col = fontsize_col, 
+           scale = scale, 
+           cluster_rows = cluster_rows,
+           cluster_cols = cluster_cols,
+           color = color,
+           angle_col = angle_col, 
+           annotation_row = annotation_row,
+           ...)
+}
 
 
 # Boxplot with ROC curve ####
@@ -1007,7 +1107,8 @@ BoxROC = function(data, group.var, y,
     geom_jitter(alpha = jitter.alpha, 
                 position = position_jitterdodge(jitter.width), 
                 size = point.size) +
-    labs(x = box.xlab, y = box.ylab, fill = box.group.lab) + 
+    labs(fill = box.group.lab) + 
+    xlab(label = box.xlab)+ylab(label = box.ylab)+
     theme_classic()
 
   # roc curve
@@ -1027,8 +1128,9 @@ BoxROC = function(data, group.var, y,
     geom_path() + 
     scale_x_reverse() + 
     geom_abline(slope = 1, intercept = 1, color = 'grey') + 
-    labs(title = paste0('AUC: ', round(roc.results$auc, 4)), 
-         x = roc.xlab, y = roc.ylab) + theme_classic()
+    labs(title = paste0('AUC: ', round(roc.results$auc, 4)))+ 
+    xlab(label = roc.xlab)+ylab(label = roc.ylab) +
+    theme_classic()
 
   # combine boxplot and roc curve
   g = arrangeGrob(g.box, g.roc, widths = c(0.5, 0.5))
@@ -1038,90 +1140,121 @@ BoxROC = function(data, group.var, y,
 }
 
 
-# ggplot2 way
+# Bi-axis error bar plot cannot be achieved from ggplot2 easily
+# here use base plot
+# R base plot way
 
-BiAxisErrBar = function(data, x, y1, y2, theme_classic = TRUE, title = NULL, ...) {
-  # main function of bi-axis error bar plot
-  
-  # x: variable on x axis
-  # y1: variable as base scale (scale on the left)
-  # y2: variable with transformed scale (on the right)
-  
-  # create grouping color
-  # QWL: added grDevices::
-  color_hue <- function(n) {
-    hues = seq(15, 375, length = n + 1)
-    grDevices::hcl(h = hues, l = 65, c = 100)[1:n]
-  }
-  # standard error function
-  # QWL: added stats::
-  se = function(s, na.rm = TRUE) {
-    if (na.rm) {
-      s = s[!is.na(s)]
-      stats::sd(s)/sqrt(length(s))
-    } else stats::sd(s)/sqrt(length(s))
-  }
-  # by x, calculate mu, se, lower, upper of y1, y2 respectively
-  # QWL: added 'reshape2::'
-  # QWL: added 'dplyr::' before 'mutate'
-  # QWL: rename object 'se' as 'myse' to distinguish it with 'se' function
-  #      defined previously
-  value = NULL
-  mu = NULL
-  myse = NULL
-  lower = NULL
-  upper = NULL
-  stats = data %>% reshape2::melt(meaure.vars = c(y1, y2), variable.name = 'y') %>%
-    group_by_(x, 'y') %>%
-    dplyr::summarise(mu = mean(value, na.rm = TRUE), 
-                     myse = se(value, na.rm = TRUE)) %>%
-    dplyr::mutate(lower = mu - myse, upper = mu + myse) %>%
-    dplyr::select(-myse) %>%
-    reshape2::melt(measure.vars = c('mu', 'lower', 'upper')) %>%
-    dcast(as.formula(paste0(x, '+ variable ~ y')), value.var = 'value')
-  # linearly transform y2 to y1 scale using (y2 = alpha * y2 + beta)
-  alpha = (max(stats[, y1]) - min(stats[, y1])) / (max(stats[, y2]) - min(stats[, y2]))
-  beta = (min(stats[, y1]) * max(stats[, y2]) - max(stats[, y1]) * min(stats[, y2])) /
-    (max(stats[, y2]) - min(stats[, y2]))
-  stats_updatae = stats
-  stats[, y2] = stats[, y2] * alpha + beta
-  # return bi-axis err bar plot
-  # QWL: added 'reshape2::' before 'dcast'
-  # QWL: added 'ggplot2::' before 'ggplot', 'aes_string', 'aes', 'position_dodge', 'scale_y_continuous'
-  # QWL: added 'ggplot2::' before sec_axis, labs, theme_classic, element_text, element_blank
-  g = stats %>% melt(measure.vars = c(y1, y2), variable.name = 'y') %>%
-    reshape2::dcast(as.formula(paste0(x, '+ y ~ variable'))) %>% 
-    ggplot2::ggplot(ggplot2::aes_string(x, 'mu', color = 'y')) + 
-    geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), 
-                  width = 0.1, position = ggplot2::position_dodge(0.3)) + 
-    ggplot2::scale_y_continuous(
-      name = y1, 
-      # define second axis with transformed scale
-      sec.axis = ggplot2::sec_axis(~(.-beta)/alpha, name = y2)
-    ) + ggplot2::labs(title = title)
-  # classical theme
-  if (theme_classic) {
-    g = g + ggplot2::theme_classic()
-  }
-  # add facet & theme arguments from ...
-  dots = list(...)
-  THEME_args_names = THEME %>% formals %>% names
-  THEME_args = dots[names(dots) %in% THEME_args_names]
-  
-  # axis label position
-  g = do.call(THEME, c(list(g = g), THEME_args))
-  # customize left & right axis 
-  g = g + theme(axis.text.y = ggplot2::element_text(color = color_hue(2)[1]), 
-                axis.text.y.right = ggplot2::element_text(color = color_hue(2)[2]), 
-                axis.title.y = ggplot2::element_text(color = color_hue(2)[1]), 
-                axis.title.y.right = ggplot2::element_text(color = color_hue(2)[2]), 
-                # axis.ticks.y = element_line(color = color_hue(2)[1]), 
-                # axis.ticks.y.right = element_line(color = color_hue(2)[2]),
-                legend.title = ggplot2::element_blank())
-  # return plot
-  g
+# group -
+# y.left - character indicating the variable on left y-axis
+# y.right - character indicating the variable on right y-axis
+# col.left - color for variable on left y-axis
+# col.right - color for variable on right y-axis
+
+# standard error function
+seFunc = function(s, na.rm = TRUE) {
+  if (na.rm) {
+    s = s[!is.na(s)]
+    sd(s)/sqrt(length(s))
+  } else sd(s)/sqrt(length(s))
 }
 
+
+
+# Bi-axis error bar plot cannot be achieved from ggplot2 easily
+# here use base plot
+# R base plot way
+# y.left - character indicating the variable on left y-axis
+# y.right - character indicating the variable on right y-axis
+# col.left - color for variable on left y-axis
+# col.right - color for variable on right y-axis
+BiAxisErrBar = function(dat, 
+			group, 
+			y.left, 
+			y.right, 
+			col.left = "blue", 
+			col.right = "red", 
+			delta=0.2, 
+			xlab=group, 
+			ylab.left=y.left, 
+			ylab.right=y.right, 
+			title = "Bi-Axis Error Bar Plot",
+			las=1,
+                        angle=90, 
+			length = 0.05, 
+			line=2, 
+			type="b", 
+			code=3, 
+			legend.position="topright",
+			...) {
+  # main function of bi-axis error bar plot
+  #require(dplyr)
+  # summary input data
+  muleft = NULL
+  muright = NULL
+  seleft = NULL
+  seright = NULL
+  dat.summary = dat %>% group_by_(group) %>%
+    summarise_(muleft = paste0('mean(', y.left, ', na.rm = TRUE)'), 
+               muright = paste0('mean(', y.right, ', na.rm = TRUE)'), 
+               seleft = paste0('seFunc(', y.left, ', na.rm = TRUE)'), 
+               seright = paste0('seFunc(', y.right, ', na.rm = TRUE)')) %>%
+    mutate(lowerleft = muleft - seleft, upperleft = muleft + seleft,
+           lowerright = muright - seright, upperright = muright + seright) %>%
+    as.data.frame()
+  
+  # set plot margins, leave more space on right side for second y axis labels
+  par(mar = c(5, 4, 2, 6) + 0.1)
+  
+  xnm=dat.summary[, group]
+  myx=seq_along(xnm)
+  # draw 1st error bar plot with y axis on left side
+  lower = dat.summary[, 'lowerleft']
+  upper = dat.summary[, 'upperleft']
+  len=length(myx)
+  myxlim=c(myx[1]-2*delta, myx[len]+2*delta)
+  
+  plot(x=myx, y=dat.summary[, 'muleft'], 
+       ylim = range(c(lower, upper)), col = col.left, 
+       xlab=xlab, ylab = NA, axes=FALSE, type=type,
+       xlim=myxlim, main=title, lty=1, pch=1, ...)
+  box()
+  axis(side = 2)
+  axis(side=1, at=myx, labels = xnm, las=las)
+  
+  # draw lower and upper values: 
+  # length: arrow width; angle: arrow angle; code: arrow type; code = 3 for error bar
+  arrows(x0=myx, y0=lower, x1=myx, y1=upper, length=length, angle=angle, code=code, col=col.left)
+  # choose which side of axis for editting: 1: bottom; 2: left; 3: top; 4: right
+  # add labels for axis: line: space between label and axis
+  mtext(text = ylab.left, side = 2, line = line)
+  
+  
+  # create new plot on top of first plot
+  par(new = TRUE)
+  
+  # draw 2nd error bar plot with y axis on right side
+  # axes = F: no repeated axes
+  # xlab = NA: no repeated x labels
+  lower = dat.summary[, 'lowerright']
+  upper = dat.summary[, 'upperright']
+  myx2=myx +delta
+  plot(x=myx2, y=dat.summary[, 'muright'], xlim=myxlim,
+       ylim = range(c(lower, upper)), col = col.right, 
+       xlab=NA, ylab = NA, axes=FALSE, type=type, lty=2, pch=2)
+  
+  # draw lower and upper values: 
+  # length: arrow width; angle: arrow angle; code: arrow type; code = 3 for error bar
+  arrows(x0=myx2, y0=lower, x1=myx2, y1=upper, length=length, angle=angle, code=code, col=col.right)
+  # add labels for axis: line: space between label and axis
+  mtext(text = ylab.right, side = 4, line = line)
+  
+  axis(side=4)
+  
+  legend(x=legend.position, legend=c(y.left, y.right),
+	 col=c(col.left, col.right), lty=1:2, pch=1:2)
+}
+
+###########################################
 # PVCA plot
 # QWL: revise code so that the rows of gene_data are genes; columns are subjects
 PVCA = function(clin_data, clin_subjid, gene_data, pct_threshold = 0.8, 
@@ -1153,7 +1286,7 @@ PVCA = function(clin_data, clin_subjid, gene_data, pct_threshold = 0.8,
     #theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     geom_bar(stat = "identity") + 
     geom_text(size = 3, aes(label = round(PVCA, 3)), position = position_stack(), vjust = -1) +
-    labs(x = NULL, y = 'Weighted average proportion variance')
+    xlab(label = NULL)+ylab(label = 'Weighted average proportion variance')
   # classical theme
   if (theme_classic) {
      g = g + theme_classic()
@@ -1171,10 +1304,10 @@ PVCA = function(clin_data, clin_subjid, gene_data, pct_threshold = 0.8,
 }
 
 
-# PCA score plot (add mahalanobis distance, scree plot, loading plot)
 PCA_score = function(prcomp_obj, data, dims=c(1,2), color = NULL, 
                      MD = TRUE, loadings = FALSE, 
-		     loadings.color = 'black', loadings.label = FALSE) {
+                     loadings.color = 'black', loadings.label = FALSE,
+                     title = "pca plot") {
   # main function of PCA plot
   
   # QWL: commented out 'require'
@@ -1206,6 +1339,7 @@ PCA_score = function(prcomp_obj, data, dims=c(1,2), color = NULL,
   
   # add mahalanobis distance (distance between each point and mean value)
   if (!is.null(color)) {
+    data[, c(color)]=as.factor(data[, c(color)])
     dist_data = data %>% dplyr::select_(paste0('-', color))
   } else {
     dist_data = data
@@ -1216,7 +1350,8 @@ PCA_score = function(prcomp_obj, data, dims=c(1,2), color = NULL,
   score_data[, 'Mahalanobis'] = mahalanobis_dist
   # create base PCA score plot
   # QWL: 'PC1' and 'PC2' are the column names of 'score_data'
-  score_plot = ggplot(score_data, aes(PC1, PC2)) + xlab(myxlab) + ylab(myylab)
+  score_plot = ggplot(score_data, aes(PC1, PC2)) + xlab(myxlab) + ylab(myylab) +
+    labs(title = title)
   # add mahalanobis distance and grouping color
   md_size = switch(MD, 'Mahalanobis', NULL)
   score_plot = score_plot  + 
@@ -1376,7 +1511,7 @@ ImpPlot = function(model, theme_classic = TRUE, n.trees = NULL, ...) {
     geom_bar(aes(fill = variables), stat = 'identity') + 
     geom_text(aes(label = round(importance, 2)), hjust = 1)+
     coord_flip() + 
-    labs(y = importance_label)
+    ylab(label = importance_label)
   if (theme_classic) {
     g = g + theme_classic()
   }

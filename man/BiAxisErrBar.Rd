@@ -1,47 +1,96 @@
 \name{BiAxisErrBar}
 \alias{BiAxisErrBar}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Compare Groups Based on Scatter Plots
+Compare Patterns of Two Outcomes in One Scatter Plot
 }
 \description{
-Compare groups based on two outcomes with different scales using error bar plots. Each bar plot displays mean \eqn{+/-}{+/-} standard error. 
+Compare patterns of two outcomes with different scales across the range of the common predictor using error bar plots. Each bar plot displays mean \eqn{+/-}{+/-} standard error. 
 }
 \usage{
-BiAxisErrBar(data, x, y1, y2, theme_classic = TRUE, title = NULL, ...)
+BiAxisErrBar(dat, 
+	     group, 
+	     y.left, 
+	     y.right, 
+	     col.left = "blue", 
+	     col.right = "red", 
+	     delta = 0.2, 
+	     xlab = group, 
+	     ylab.left = y.left, 
+	     ylab.right = y.right, 
+	     title = "Bi-Axis Error Bar Plot",
+	     las = 1, 
+	     angle = 90, 
+	     length = 0.05, 
+	     line = 2, 
+	     type = "b", 
+	     code = 3,
+	     legend.position="topright",
+	     ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{data}{
-	  A data frame. Rows are subjects; Columns are variables describing the subjects.
+  \item{dat}{
+A data frame. Rows are subjects; Columns are variables describing the subjects.
 }
-  \item{x}{
-	  character. A categorical variable in \code{data} that indicates the subject groups. The error bar plots will be drawn for each of the subject group. 
+  \item{group}{
+character. A categorical variable in \code{data} that indicates the predictor. 
 }
-  \item{y1}{
-	  character. The column name of \code{data} that indicates the base-scale variable for each subject group, the bar plot of which will be drawn on the left side.
+  \item{y.left}{
+character. The column name of \code{data} that indicates the first outcome variable, the error bar plot of which will be drawn on the left side.
 }
-  \item{y2}{
-	  character. The column name of \code{data} that indicates the transformed-scale variable for each subject group, the bar plot of which will be drawn on the right side.
+  \item{y.right}{
+character. The column name of \code{data} that indicates the second outcome variable, the error bar plot of which will be drawn on the right side.
 }
-  \item{theme_classic}{
-	  logical. Use classic background without grids (default: TRUE)
+  \item{col.left}{
+character. The color of the error bar plot for the first outcome variable.
+}
+  \item{col.right}{
+character. The color of the error bar plot for the second outcome variable.
+}
+  \item{delta}{
+numeric. A small number so that the second error bar plot will shift \code{delta} distance from the first error bar plot.
+}
+  \item{xlab}{
+	  character. Label for the x-axis.
+}
+  \item{ylab.left}{
+	  character. Label for the left-side y-axis.
+}
+  \item{ylab.right}{
+	  character. Label for the right-side y-axis.
 }
   \item{title}{
-	  title of the plot
+character. title of the plot.
+}
+  \item{las}{
+	  integer. indicates the style of axis labels. Please refer to the manual of the R function \code{\link{par}}.
+}
+  \item{angle}{
+	  numeric. Angle from the shaft of the arrow to the edge of the arrow head. Please refer to the manual of the R function \code{\link{mtext}}.
+}
+  \item{length}{
+	  numeric. Length of the edges of the arrow head (in inches). Please refer to the manual of the R function \code{\link{mtext}}.
+}
+  \item{line}{
+	  numeric. indicate the starting line of text on margin. Please refer to the manual of the R function \code{\link{mtext}}.
+}
+  \item{type}{
+character. indicating the type of plotting. Please refer to the manual of the R function \code{\link{type}}.
+}
+  \item{code}{
+integer. determining kind of arrows to be drawn. Please refer to the manual of the R function \code{\link{arrows}}.
+}
+  \item{legend.position}{
+character. determining the position of the legend. Please refer to the R function \code{\link{legend}}.
 }
   \item{\dots}{
-	  other input parameters for facet & theme.
+	  other input parameters for the R function \code{\link{plot}}.
 }
 }
 %\details{
 %%  ~~ If necessary, more details than the description above ~~
 %}
 \value{
-		A list with 9 elements.
-	\code{data}, \code{layers}, \code{scales}, \code{mapping},
-   	\code{theme}, \code{coordinates},
-\code{facet}       \code{plot_env}, and \code{labels}.
+	None.
 }
 %\references{
 %% ~put references to the literature/web site here ~
@@ -62,7 +111,6 @@ Donghui Zhang <Donghui.Zhang@sanofi.com>
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 %}
 \examples{
-
 data(esSim)
 print(esSim)
 
@@ -98,18 +146,17 @@ print(table(pDat$grp, useNA = "ifany"))
 
 
 statVisual(type = 'BiAxisErrBar', 
-           data = pDat, 
-           x = 'grp', 
-           y1 = 'probe1', 
-           y2 = 'probe5', 
-           title = 'Bi-axis error bar')
+           dat = pDat, 
+           group = 'grp', 
+           y.left = 'probe1', 
+           y.right = 'probe5') 
 
-BiAxisErrBar( 
-  data = pDat, 
-  x = 'grp', 
-  y1 = 'probe1', 
-  y2 = 'probe5', 
-  title = 'Bi-axis error bar')
+g1 = BiAxisErrBar( 
+  dat = pDat, 
+  group = 'grp', 
+  y.left = 'probe1', 
+  y.right = 'probe5') 
+
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

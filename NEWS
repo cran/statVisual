@@ -1,3 +1,26 @@
+v1.0.9 created on April 10, 2019
+  (1) modify XYscatter. all plots have the same x-axis and y-axis range
+  (2) set delta = 0.2 (instead of 0.5) in BiAxisErrBar
+
+v1.0.8 created on April 5, 2019
+  (1) fixed a bug in 'BiAxisErrBar': no line connect means
+  
+v1.0.7 created on April 4, 2019
+  (1) before set 'x' or 'group' as factor, first test if they are already factor
+v1.0.6 created on April 3, 2019 and modified on April 4, 2019
+ (1) fixed a bug in 'Box' function: added "+ scale_x_discrete(drop = F) + scale_fill_discrete(drop = F) +"
+ (2) set default value for jitter.width=1 and point.size = 1
+ (3) in 'PCA_score', add the input 'title'
+ (4) in 'PCA_score', if 'color' not NULL, then set data[, c(color)]=as.factor(data[, c(color)])
+ (5) added "+ xlab(label=xlab) + ylab(label=ylab)" to functions 'BoxROC', 
+      'XYscatter', 'PVCA', and 'ImpPlot'
+ (6) fixed a bug in 'XYscatter', 'Hist', and 'Den': when 'group=NULL', there is an error
+ (7) in 'Heat', replace 'heatmap.2' by 'pheatmap'
+ (8) in 'LinePlot' and 'Box', set 'x' and 'group' as factor
+ (9) in 'BiAxisErrBar', set 'x' as factor
+
+
+  
 v1.0.5 created on Mar. 12, 2019
   (1) revised DESCRIPTION file based on CRAN's comments:
   Please omit the redundant "We provide novel..." and start your description with "Visualization functions ...".

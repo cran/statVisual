@@ -17,7 +17,8 @@ PCA_score(
     MD = TRUE, 
     loadings = FALSE, 
     loadings.color = "black", 
-    loadings.label = FALSE)
+    loadings.label = FALSE,
+    title = "pca plot")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -45,6 +46,9 @@ will be used to draw scatter plot.
 }
   \item{loadings.label}{
   logical. Indicating if loading labels should be added to the plot. (default: FALSE)
+}
+  \item{title}{
+  character. Figure title.
 }
 }
 %\details{
