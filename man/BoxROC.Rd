@@ -20,7 +20,8 @@ BoxROC(
     jitter.width = 0.1, 
     point.size = 3, 
     roc.xlab = "Specificity", 
-    roc.ylab = "Sensitivity")
+    roc.ylab = "Sensitivity",
+    addThemeFlag = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -58,6 +59,9 @@ character. roc curve x axis label (default: \code{Specificities})
 }
   \item{roc.ylab}{
 character. roc curve y axis label (default: \code{Sensitivities})
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
 }
 %\details{

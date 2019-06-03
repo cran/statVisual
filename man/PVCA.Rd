@@ -16,6 +16,7 @@ PVCA(
     pct_threshold = 0.8, 
     batch.factors, 
     theme_classic = FALSE, 
+    addThemeFlag = TRUE,
     ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -37,6 +38,9 @@ numeric. The percentile value of the minimum amount of the variabilities that th
 }
   \item{theme_classic}{
 	  logical. Use classic background without grids (default: TRUE).
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
   \item{\dots}{
 other input parameters for facet & theme

@@ -19,6 +19,7 @@ ErrBar(
     y, 
     group = NULL,
     semFlag = TRUE,
+    xFlag = FALSE,
     bar.width = 0.5, 
     dodge.width = 0.8, 
     jitter = TRUE, 
@@ -31,6 +32,8 @@ ErrBar(
     theme_classic = TRUE, 
     group.lab = group, 
     title = "Dot plots", 
+    xLevel = NULL,
+    addThemeFlag = TRUE,
     ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -50,6 +53,9 @@ character. The column name of \code{data} that indicates the variable on y axis
   \item{semFlag}{
   logical. Indicate if sem or se should be used to draw error bar
   }
+  \item{xFlag}{
+  logical. Indicate if \code{x} should be treated as continuous (\code{xFlag=TRUE})
+}
   \item{bar.width}{
 numeric. error bar width
 }
@@ -86,6 +92,12 @@ character. y axis label
   \item{title}{
 	  character. title of plot
 }
+  \item{xLevel}{
+character. A character vector indicating the order of the elements of \code{x} to be shown on x-axis if \code{is.null(x)==FALSE}.
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
+}
   \item{\dots}{
 other input parameters for facet & theme
 }
@@ -97,7 +109,7 @@ other input parameters for facet & theme
 A list of the following 9 elements:
 \dQuote{data}, \dQuote{layers}, \dQuote{scales}, \dQuote{mapping},
 \dQuote{theme}, \dQuote{coordinates}, \dQuote{facet}, \dQuote{plot_env},
-\dQuote{labels} .
+\dQuote{labels}.
 }
 %\references{
 %% ~put references to the literature/web site here ~

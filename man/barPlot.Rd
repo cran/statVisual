@@ -1,37 +1,37 @@
-\name{Box}
-\alias{Box}
+\name{barPlot}
+\alias{barPlot}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Compare Groups Based on Boxplots Across Time
+Compare Groups Based on Barplots Across Time
 }
 \description{
-This function is to compare groups using boxplots at each time point. 
-In addition, line segments are used to connect the mean/median of each boxplot 
+This function is to compare groups using barplots at each time point. 
+In addition, line segments are used to connect the mean/median of each barplot 
 of the same group across time to show the differences between 
-the mean trajectories.
+the mean trajectories. 
+Also, for each barplot 
+the barplot of mean \eqn{+/-}{+/-} standard error will be plot.
 }
 \usage{
-Box(
+barPlot(
     data, 
     x = NULL, 
     y, 
-    group = NULL, 
-    fill = NULL, 
-    theme_classic = TRUE, 
-    fill.alpha = 0.7, 
-    box.width = 0.5, 
+    group = NULL,
+    semFlag = TRUE,
+    xFlag = FALSE, 
+    bar.width = 0.5, 
     dodge.width = 0.8, 
-    jitter = TRUE, 
+    jitter = FALSE, 
     jitter.alpha = 0.7, 
-    jitter.width = 0.2, 
-    point.size = 1, 
-    xlab = x, 
-    ylab = y, 
-    group.lab = group, 
-    fill.lab = group, 
-    title = "Boxplot", 
-    line = "mean", 
+    jitter.width = 0.1, 
+    line = NULL, 
     line.color = "black", 
+    xlab = x, 
+    ylab = line, 
+    theme_classic = TRUE, 
+    group.lab = group, 
+    title = "bar plots", 
     xLevel = NULL,
     addThemeFlag = TRUE,
     ...)
@@ -42,40 +42,40 @@ Box(
 A data frame. Rows are subjects; Columns are variables describing the subjects.
 }
   \item{x}{
-character. The column name of \code{data} that indicates the first grouping variable (e.g. observation time)
+character. The column name of \code{data} that indicates the first grouping variable
 }
   \item{y}{
 character. The column name of \code{data} that indicates the variable on y axis
 }
   \item{group}{
-	  character. The column name of \code{data} that indicates the subject groups (e.g., treatment group). The boxplots will be drawn for each of the subject group within each category of \code{x}. 
+	  character. The column name of \code{data} that indicates the subject groups. The barplots will be drawn for each of the subject group within each category of \code{x}. 
 }
-  \item{fill}{
-boxplot inside color indicated by the categories of \code{group}
-}
-  \item{theme_classic}{
-	  logical. Use classic background without grids (default: TRUE).
-}
-  \item{fill.alpha}{
-boxplot transparency
-}
-  \item{box.width}{
-	  boxplot width
+  \item{semFlag}{
+  logical. Indicate if sem or se should be used to draw error bar
+  }
+  \item{xFlag}{
+  logical. Indicate if \code{x} should be treated as continuous (\code{xFlag=TRUE})
+  }
+  \item{bar.width}{
+numeric. error bar width
 }
   \item{dodge.width}{
-dodge width for boxplot and jitter (prevent overlapping)
+numeric. dodge width for error bar and jitter (prevent overlapping)
 }
   \item{jitter}{
-logical. plot jitter or not, default TRUE
+logical, plot jitter or not, default TRUE
 }
   \item{jitter.alpha}{
-jitter transparency
+numeric. jitter transparency
 }
   \item{jitter.width}{
-jitter width in boxplot
+numeric. jitter width in error bar
 }
-  \item{point.size}{
-	  size of a jitter point
+  \item{line}{
+character. line connect error bar, default uses mean, can be set as 'median', NULL (no line)
+}
+  \item{line.color}{
+character. connection line color, only available when group = NULL
 }
   \item{xlab}{
 character. x axis label
@@ -83,20 +83,14 @@ character. x axis label
   \item{ylab}{
 character. y axis label
 }
-  \item{group.lab}{
-label of group variable
+  \item{theme_classic}{
+	  logical. Use classic background without grids (default: TRUE).
 }
-  \item{fill.lab}{
-label of fill variable
+  \item{group.lab}{
+	  character. label of group variable
 }
   \item{title}{
-character. title of plot
-}
-  \item{line}{
-line connect boxes, default plot mean, can be set as 'median', or NULL (no line)
-}
-  \item{line.color}{
-connection line color, only available when group = NULL
+	  character. title of plot
 }
   \item{xLevel}{
 character. A character vector indicating the order of the elements of \code{x} to be shown on x-axis if \code{is.null(x)==FALSE}.
@@ -112,8 +106,10 @@ other input parameters for facet & theme
 %%  ~~ If necessary, more details than the description above ~~
 %}
 \value{
-A list with the following 9 elements: \code{data}, \code{layers}, \code{scales}, \code{mapping}, \code{theme}, \code{coordinates}, \code{facet},
-\code{plot_env}, and \code{labels}.
+A list of the following 9 elements:
+\dQuote{data}, \dQuote{layers}, \dQuote{scales}, \dQuote{mapping},
+\dQuote{theme}, \dQuote{coordinates}, \dQuote{facet}, \dQuote{plot_env},
+\dQuote{labels}.
 }
 %\references{
 %% ~put references to the literature/web site here ~
@@ -134,7 +130,7 @@ Donghui Zhang <Donghui.Zhang@sanofi.com>
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 %}
 \examples{
-library(dplyr)
+
 
 data(longDat)
 
@@ -147,19 +143,20 @@ print(table(longDat$sid, useNA = "ifany"))
 
 print(table(longDat$time, longDat$grp))
 
-statVisual(type = 'Box', 
-           data = longDat, 
-           x = 'time', 
-           y = 'y', 
-           group = 'grp',
-	   title = "Boxplots across time") 
+statVisual(type = 'barPlot', 
+  data = longDat, 
+  x = 'time', 
+  y = 'y', 
+  group = 'grp',
+  title = "Bar plots across time") 
 
-Box( 
-    data = longDat, 
-    x = 'time', 
-    y = 'y', 
-    group = 'grp',
-    title = "Boxplots across time") 
+
+barPlot(
+  data = longDat, 
+  x = 'time', 
+  y = 'y', 
+  group = 'grp',
+  title = "Bar plots across time") 
 
 
 }

@@ -1,3 +1,43 @@
+v1.1.8 created on June 02, 2019
+  (1) For functions LinePlot, ErrBar, and barPlot, added an input parameter 'xFlag' to indicate if x-axis variable should be
+  regarded as a continuous variable ('xFlag = TRUE') or a factor ('xFlag = FALSE')
+  
+v1.1.7 created on June 02, 2019
+  (1) in iprcomp: replacing missing value as the median of the corresponding variable
+  (2) revise iprcomp.Rd and vignette
+  (3) initialized mu2 and se2 in 'BiAxisErrBar'
+  (4) rename 'ErrBarplot' to 'barPlot'
+  
+v1.1.6 created on May 30, 2019
+  (1) replaced old 'details' in 'iprcomp' Rd file
+
+v1.1.5 created on May 19, 2019
+  (1) in BiAxisErrBar, automatically set dodge width if 'delta=NULL'.
+      we will set delta=minD/5 , where minD is the minimum of
+      difference between visit[i+1] - visit[i]
+  (2) in BiAxisErrBar, set default value of addTheme as FALSE
+  (3) in BiAxisErrBar, fixed a bug when cv1 < cvThresh
+
+v1.1.3 created on May 11, 2019
+  (1) update 'BiAxisErrBar' function using new algorithm (Thank Mr. Jun Luo for his kind help!)
+  
+v1.1.2 created on May 3, 2019
+  (1) force 'group' to be factor in Hist, Den, Dendro
+  (2) fixed a bug in 'Box': when x=NULL, xLevel was not assigned correctly
+
+v1.1.1 created on May 1, 2019
+  (1) fixed a bug in vignette: we have two ExpressionSet objects called in vignette, but used the same name 'pDat' to denote their phenotype data.
+  
+v1.1.0 created on April 30, 2019
+  (1) added input parameter 'xLevel' to functions 'LinePlot', 'Box', 'ErrBar'
+  (2) set 'jitter.width = 0.2' in 'Box'
+  (3) added function 'addTheme'
+  (4) revised functions by adding background and grid through input parameter 'addThemeFlag'
+  (5) added function 'stackedBarPlot'
+  (6) replaced function 'BiAxisErrBar' by that writted by Mr. Jun Luo who used ggplot.
+
+
+  
 v1.0.9 created on April 10, 2019
   (1) modify XYscatter. all plots have the same x-axis and y-axis range
   (2) set delta = 0.2 (instead of 0.5) in BiAxisErrBar

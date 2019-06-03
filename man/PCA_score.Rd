@@ -18,7 +18,8 @@ PCA_score(
     loadings = FALSE, 
     loadings.color = "black", 
     loadings.label = FALSE,
-    title = "pca plot")
+    title = "pca plot",
+    addThemeFlag = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -49,6 +50,9 @@ will be used to draw scatter plot.
 }
   \item{title}{
   character. Figure title.
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
 }
 %\details{

@@ -23,6 +23,7 @@ Hist(
     ylab = "count", 
     group.lab = group, 
     title = "Histogram", 
+    addThemeFlag = TRUE,
     ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -70,6 +71,9 @@ Histogram inside color, only available when group & fill are NULL.
 }
   \item{title}{
 	  title of the plot
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
   \item{\dots}{
 	  other input parameters for facet & theme

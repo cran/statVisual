@@ -1,8 +1,8 @@
 Package: statVisual
 Type: Package
 Title: Statistical Visualization Tools
-Version: 1.0.9
-Date: 2019-04-12
+Version: 1.1.8
+Date: 2019-06-02
 Authors@R: c(
              person("Wenfei", "Zhang", role = c("aut", "cre"),
                      email = "Wenfei.Zhang@sanofi.com"),
@@ -18,18 +18,18 @@ Imports: GGally, gplots, dplyr, reshape2, ggdendro, tibble, ggfortify,
         ggrepel, gbm, forestplot, rpart.plot, grDevices, gridExtra,
         pROC, factoextra, methods, pvca, limma, randomForest, glmnet,
         knitr, rmarkdown, pheatmap, RColorBrewer, graphics, tidyverse,
-        magrittr
+        magrittr, multigroup
 VignetteBuilder: knitr
 Description: Visualization functions in the applications of translational medicine (TM) and biomarker (BM) development to compare groups by statistically visualizing data and/or results of analyses, such as visualizing data by displaying in one figure different groups' histograms, boxplots, densities, scatter plots, error-bar plots, or trajectory plots, by displaying scatter plots of top principal components or dendrograms with data points colored based on group information, or visualizing volcano plots to check the results of whole genome analyses for gene differential expression. 
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
-Packaged: 2019-04-12 22:43:05 UTC; i0388414
+Packaged: 2019-06-03 04:07:02 UTC; I0388414
 Author: Wenfei Zhang [aut, cre],
   Weiliang Qiu [aut, ctb],
   Xuan Lin [aut, ctb],
   Donghui Zhang [aut, ctb]
 Maintainer: Wenfei Zhang <Wenfei.Zhang@sanofi.com>
 Repository: CRAN
-Date/Publication: 2019-04-16 19:22:39 UTC
+Date/Publication: 2019-06-03 14:10:03 UTC

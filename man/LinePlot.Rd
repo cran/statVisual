@@ -14,12 +14,15 @@ LinePlot(
     y, 
     sid,
     group = NULL, 
+    xFlag = FALSE,
     points = TRUE, 
     point.size = 1, 
     theme_classic = TRUE, 
     xlab = x, 
     ylab = y, 
     title = "Trajectory plot", 
+    xLevel = NULL,
+    addThemeFlag = TRUE,
     ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -40,6 +43,9 @@ character. The column name of \code{data} that indicates the variable on y axis
 	  character. The column name of \code{data} that indicates the subject groups. The trajectories of subjects
 	 in the same group will have the same color.
 }
+  \item{xFlag}{
+  logical. Indicate if \code{x} should be treated as continuous (\code{xFlag=TRUE})
+}
   \item{points}{
 	  logical. Indicates if points will be added to the trajectories on the coordinate (x, y).
 }
@@ -57,6 +63,12 @@ character. y axis label
 }
   \item{title}{
 character. title of plot
+}
+  \item{xLevel}{
+character. A character vector indicating the order of the elements of \code{x} to be shown on x-axis if \code{is.null(x)==FALSE}.
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
   \item{\dots}{
 other input parameters for facet & theme

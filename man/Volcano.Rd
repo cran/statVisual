@@ -28,6 +28,7 @@ Volcano(
     rowname.var = NULL, 
     point.size = 3, 
     theme_classic = TRUE, 
+    addThemeFlag = TRUE,
     ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -76,6 +77,9 @@ Volcano(
 }
   \item{theme_classic}{
 	  logical. Use classic background without grids (default: TRUE).
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
   \item{\dots}{
 	  other input parameters for facet & theme

@@ -1,3 +1,8 @@
+# v6 created on June 2, 2019
+#  (1) replace missing value by median of corresponding variable. 
+#  (Thank Mr. Jun Luo for pointing out the mistake in previous version:
+#   replacing missing value by zero)
+#
 # v5 created on Feb. 17, 2019
 #  (1) when number of variables are too large, the function 'eigen' will be
 #      very slow. So we still use 'prcomp', but with modified input dat, 
@@ -19,15 +24,29 @@
 # improved prcomp
 
 # dat - n x p matrix; rows are subjects and columns are variables
-
 iprcomp=function(dat, center=TRUE, scale. = FALSE)
 {
-  dat0=dat
-  dat0[is.na(dat)] = 0
   
-  res=prcomp(dat0, center=center, scale.=scale.)
-
+  if(any(is.na(dat)==TRUE))
+  {
+    # impute missing values as the median of that variable
+    dat2=apply(dat, 2, function(x){
+      if(any(is.na(x)==TRUE)){
+        m=median(x, na.rm=TRUE)
+        pos.na=which(is.na(x)==TRUE)
+        x[pos.na]=m
+      }
+      return(x)
+    })
+    colnames(dat2)=colnames(dat)
+    rownames(dat2)=rownames(dat)
+    dat=dat2
+  }
+  
+  res = prcomp(dat, center = center, scale. = scale.)
   invisible(res)
+  
+ 
 }
 
 

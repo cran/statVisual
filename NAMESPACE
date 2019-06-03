@@ -1,4 +1,5 @@
 export(
+  barPlot,
   BiAxisErrBar,
   Box,
   BoxROC,
@@ -13,6 +14,7 @@ export(
   LinePlot,
   PCA_score,
   PVCA,
+  stackedBarPlot,
   statVisual,
   Volcano,
   XYscatter
@@ -24,6 +26,8 @@ importFrom(grDevices,
 
 importFrom(magrittr,
            set_colnames)
+
+
 
 importFrom(dplyr,
            "%>%",
@@ -113,6 +117,8 @@ importFrom(RColorBrewer,
 
 importFrom("graphics", "arrows", "axis", "box", "mtext", "par", "plot")
 importFrom("graphics", "legend")
+
+
 
 import(ggplot2)
 import(stats)

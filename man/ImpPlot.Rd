@@ -8,7 +8,11 @@ Plot of Variable Importance
 Plot of variable importance based on results from \code{\link{randomForest}} or \code{\link{gbm}}.
 }
 \usage{
-ImpPlot(model, theme_classic = TRUE, n.trees = NULL, ...)
+ImpPlot(model, 
+	theme_classic = TRUE, 
+	n.trees = NULL, 
+	addThemeFlag = TRUE,
+	...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +26,9 @@ ImpPlot(model, theme_classic = TRUE, n.trees = NULL, ...)
 	  integer. The number of trees used to generate the plot
 	  used in the function \code{summary.gbm} in the R library \code{\link{gbm}}. 
 	  Only the first n.trees trees will be used.
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
   \item{\dots}{
 	  other input parameters for facet & theme

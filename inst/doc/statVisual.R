@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 
-## ----echo=T, message=F---------------------------------------------------
+## ----eval = T, echo=T, message=F-----------------------------------------
 # packages in Bioconductor
 library(Biobase)    # base package for Bioconductor
 library(limma)      # linear models for continuous omics data
@@ -31,6 +31,7 @@ library(gridExtra)  # Grid graphics
 library(knitr)      # dynamic report generation
 library(methods)    # formal methods and classes
 library(pROC)       # display and analyze ROC curves
+library(multigroup) # multigroup data analysis
 library(randomForest) # Random forest variable importance
 library(reshape2)   # flexibly reshape data
 library(rmarkdown)  # dynamic documents for R
@@ -38,7 +39,7 @@ library(rpart.plot) # plots for recursive partitioning for classification, regre
 library(tibble)     # simple data frames
 library(stats)      # basic statistical functions
 
-## ----echo=T, message=F---------------------------------------------------
+## ----eval = T, echo=T, message=F-----------------------------------------
 library(statVisual)
 
 ## ----eval = F, echo = T, message = F-------------------------------------
@@ -96,7 +97,7 @@ print(table(pDat$grp, useNA = "ifany"))
 #       group = 'grp')
 #  
 
-## ----message = F, echo = T,warning = F-----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'Hist', 
        data = pDat, 
        y = 'probe1', 
@@ -110,7 +111,7 @@ statVisual(type = 'Hist',
 #      y = 'probe1',
 #      group = 'grp')
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'Den',
     data = pDat, 
     y = 'probe1', 
@@ -125,7 +126,7 @@ statVisual(type = 'Den',
 #    title = 'Scatter Plot: probe1 vs probe2')
 #  
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'XYscatter',
   data = diffCorDat, 
   x = 'probe1', 
@@ -134,34 +135,75 @@ statVisual(type = 'XYscatter',
   title = 'Scatter Plot: probe1 vs probe2')
 
 ## ----message = F, eval = T, echo = T, warning = F------------------------
-# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
-pDat$probe1 = dat[1,]
-pDat$probe2 = dat[2,]
-pDat$probe3 = dat[3,]
-pDat$probe4 = dat[4,]
-pDat$probe5 = dat[5,]
-pDat$probe6 = dat[6,]
+data(genoSim)
 
-print(pDat[1:2, ])
+pDat = pData(genoSim)
+geno = exprs(genoSim)
 
-pDat$grp = factor(pDat$grp)
+pDat$snp1 = geno[1,]
+print(table(pDat$snp1, pDat$grp, useNA="ifany"))
 
-# check histograms of probe 1 expression in cases and controls
-print(table(pDat$grp, useNA = "ifany"))
+
+## ----message = F, eval = F, echo = T, warning = F------------------------
+#  stackedBarPlot(dat = pDat,
+#  	       catVar = "snp1",
+#  	       group = "grp",
+#                 xlab = "snp1",
+#  	       ylab = "Count",
+#  	       group.lab = "grp",
+#                 title = "Stacked barplots of counts for SNP1",
+#                 catVarLevel = NULL)
+
+## ----message = F, eval = T, echo = T, warning = F------------------------
+statVisual(type = 'stackedBarPlot',
+  dat = pDat, 
+  catVar = "snp1", 
+  group = "grp", 
+  xlab = "snp1", 
+  ylab = "Count", 
+  group.lab = "grp",
+  title = "Stacked barplots of counts for SNP1",
+  catVarLevel = NULL)
+
+## ----message = F, eval = T, echo = T, warning = F------------------------
+statVisual(type = 'stackedBarPlot',
+  dat = pDat, 
+  catVar = "snp1", 
+  group = "grp", 
+  xlab = "snp1", 
+  ylab = "Count", 
+  group.lab = "grp",
+  title = "Stacked barplots of counts for SNP1",
+  catVarLevel = c(2, 0, 1))
+
+
+## ----message = F, eval = T, echo = T, warning = F------------------------
+
+library(tidyverse)
+library(ggplot2)
+library(multigroup)
+
+data(oliveoil)
+print(oliveoil[1:2,])
+
+print(table(oliveoil$Group, useNA="ifany"))
+
 
 ## ----message = F, eval = F, echo = T, warning = F------------------------
 #  BiAxisErrBar(
-#    dat = pDat,
-#    group = 'grp',
-#    y.left = 'probe1',
-#    y.right = 'probe5')
+#    dat= oliveoil,
+#    group = "Group",
+#    y.left = "K270",
+#    y.right = "syrup")
+#  
 
-## ----message = F, echo = T, warning = F----------------------------------
-statVisual(type = 'BiAxisErrBar', 
-           dat = pDat, 
-           group = 'grp', 
-           y.left = 'probe1', 
-           y.right = 'probe5') 
+## ----message = F, eval = T, echo = T, warning = F------------------------
+statVisual(type="BiAxisErrBar",
+  dat= oliveoil,
+  group = "Group",
+  y.left = "K270",
+  y.right = "syrup")
+
 
 ## ----message = F, eval = F, echo = T,warning = F-------------------------
 #  
@@ -173,7 +215,7 @@ statVisual(type = 'BiAxisErrBar',
 #    group = 'grp')
 #  
 
-## ----message = F, echo = T,warning = F-----------------------------------
+## ----message = F, eval = T, echo = T,warning = F-------------------------
 statVisual(type = "LinePlot",
   data = longDat,
   x = 'time',
@@ -192,7 +234,7 @@ library(dplyr)
 #      group = 'grp',
 #      title = "Boxplots across time")
 
-## ----message = F, echo = T,warning = F-----------------------------------
+## ----message = F, eval = T, echo = T,warning = F-------------------------
 statVisual(type = 'Box', 
            data = longDat, 
            x = 'time', 
@@ -208,7 +250,7 @@ statVisual(type = 'Box',
 #    group = 'grp',
 #    title = "Dot plots across time")
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'ErrBar', 
   data = longDat, 
   x = 'time', 
@@ -217,15 +259,58 @@ statVisual(type = 'ErrBar',
   title = "Dot plots across time") 
 
 
+## ----message = F, eval = F, echo = T, warning = F------------------------
+#  barPlot(
+#    data = longDat,
+#    x = 'time',
+#    y = 'y',
+#    group = 'grp',
+#    title = "Bar plots across time")
+
+## ----message = F, eval = T, echo = T, warning = F------------------------
+statVisual(type = 'barPlot', 
+  data = longDat, 
+  x = 'time', 
+  y = 'y', 
+  group = 'grp',
+  title = "Bar plots across time") 
+
+
 ## ----message = F, eval = T, echo = T, warning = F------------------------
 library(ggdendro)
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+# check histograms of probe 1 expression in cases and controls
+pDat$grp=factor(pDat$grp)
+print(table(pDat$grp, useNA = "ifany"))
+
+
 
 ## ----message = F, eval = F, echo = T, warning = F------------------------
+#  
 #  Dendro(
 #         x = pDat[, c(3:8)],
 #         group = pDat$grp)
 
-## ----message = F, echo = T,warning = F-----------------------------------
+## ----message = F, eval = T, echo = T,warning = F-------------------------
 statVisual(type = 'Dendro', 
            x = pDat[, c(3:8)], 
            group = pDat$grp)
@@ -265,26 +350,47 @@ plot(x = res.na$x[,1], y = res.na$x[,2], xlab = "PC1", ylab  =  "PC2", main = "w
 par(mfrow = c(1,1))
 
 ## ----message = F, eval = T, echo = T, warning = F------------------------
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+# check histograms of probe 1 expression in cases and controls
+pDat$grp=factor(pDat$grp)
+print(table(pDat$grp, useNA = "ifany"))
+
+
 library(factoextra)
-
-
-pDat$grp = factor(pDat$grp)
-
 
 pca.obj = iprcomp(pDat[, c(3:8)], scale. = TRUE)
 
 # scree plot
 factoextra::fviz_eig(pca.obj, addlabels = TRUE)
 
+## ----message = F, eval = F, echo = T, warning = F------------------------
+#  PCA_score(prcomp_obj = pca.obj,
+#            dims = c(1, 3),
+#            data = pDat,
+#            color = 'grp',
+#            loadings = FALSE)
+#  
 
-PCA_score(prcomp_obj = pca.obj, 
-          dims = c(1, 3),
-          data = pDat, 
-          color = 'grp',
-          loadings = FALSE)
-
-
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'PCA_score',
            prcomp_obj = pca.obj, 
            dims = c(1, 2),
@@ -292,13 +398,36 @@ statVisual(type = 'PCA_score',
            color = 'grp',
            loadings = FALSE)
 
+## ----message = F, eval = T, echo = T, warning = F------------------------
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+pDat$grp=factor(pDat$grp)
+
 ## ----message = F, eval = F, echo = T, warning = F------------------------
 #  Heat(
 #       data = pDat[, c(2:8)],
 #       group = 'grp')
 #  
 
-## ----message = F, echo = T,warning = F-----------------------------------
+## ----message = F, eval = T, echo = T,warning = F-------------------------
 statVisual(type = 'Heat', 
            data = pDat[, c(2:8)], 
            group = 'grp')
@@ -307,6 +436,7 @@ statVisual(type = 'Heat',
 library(pvca)
 
 # create a fake Batch variable
+data(esSim)
 esSim$Batch=c(rep("A", 4), rep("B", 6), rep("C", 10))
 
 ## ----message = F, eval = F, echo = T, warning = F------------------------
@@ -316,7 +446,7 @@ esSim$Batch=c(rep("A", 4), rep("B", 6), rep("C", 10))
 #       gene_data = exprs(esSim),
 #       batch.factors = c("grp", "Batch"))
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 
 statVisual(type = 'PVCA',
            clin_data = pData(esSim), 
@@ -380,7 +510,7 @@ print(table(resFrame$sigFlag, useNA = "ifany"))
 #    point.size = 1)
 #  
 
-## ----message = F, echo = T,warning = F-----------------------------------
+## ----message = F, eval = T, echo = T,warning = F-------------------------
 statVisual(type = 'Volcano',
            resFrame = resFrame, 
            stats = 'logFC', 
@@ -422,7 +552,7 @@ print(table(pDat$grp, useNA = "ifany"))
 #    y = 'probe1',
 #    point.size = 1)
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'BoxROC', 
            data = pDat, 
            group = 'grp', 
@@ -474,7 +604,7 @@ pDat$grp = factor(pDat$grp)
 #                 y = pDat$grp,
 #                 family = "binomial")
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = "cv_glmnet_plot",
            x = as.matrix(pDat[, c(3:8)]), 
            y = pDat$grp, 
@@ -484,6 +614,29 @@ statVisual(type = "cv_glmnet_plot",
 library(dplyr)
 library(randomForest)
 library(tibble)
+
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+pDat$grp=factor(pDat$grp)
+
 
 rf_m = randomForest(
   x = pDat[, c(3:8)], 
@@ -495,11 +648,34 @@ rf_m = randomForest(
 ## ----message = F, eval = F, echo = T, warning = F------------------------
 #  ImpPlot(rf_m)
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 statVisual(type = 'ImpPlot', rf_m)
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 library(GGally)
+
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+pDat$grp=factor(pDat$grp)
+
 
 ggpairs(data = pDat, 
 	mapping = ggplot2::aes_string(color = 'grp'), 
@@ -519,7 +695,7 @@ ggpairs(data = pDat,
 	ylab = 'Y', 
 	title = 'Title')
 
-## ----message = F, echo = T, warning = F----------------------------------
+## ----message = F, eval = T, echo = T, warning = F------------------------
 
 ggcorr(data = pDat[, c(3:8)], 
        method = 'pairwise', 

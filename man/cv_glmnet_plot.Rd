@@ -8,7 +8,11 @@ Plot the Cross-Validation Curve Produced by cv.glmnet
 Plots the cross-validation curve, and upper and lower standard error curves, as a function of the values of the tuning parameter lambda.
 }
 \usage{
-cv_glmnet_plot(x, y, family = "binomial", ...)
+cv_glmnet_plot(x, 
+	       y, 
+	       family = "binomial", 
+	       addThemeFlag = TRUE, 
+	       ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,6 +25,9 @@ cv_glmnet_plot(x, y, family = "binomial", ...)
   \item{family}{
    character. Indicating response type. see the description in \code{\link{glmnet}}.   
   }
+    \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
+}
   \item{...}{
   other input parameters for \code{\link{glmnet}} function.
   }

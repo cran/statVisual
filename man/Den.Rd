@@ -21,6 +21,7 @@ Den(
     group.lab = group, 
     title = "Density plot", 
     alpha = 0.3, 
+    addThemeFlag = TRUE,
     ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -62,6 +63,9 @@ Den(
 }
   \item{alpha}{
 transparency of density inside color
+}
+  \item{addThemeFlag}{
+	  logical. Indicates if light blue background and white grid should be added to the figure.
 }
   \item{\dots}{
 	  other input parameters for facet & theme

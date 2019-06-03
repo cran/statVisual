@@ -1,3 +1,18 @@
+#v1.1.8 created on June 02, 2019
+#  (1) For functions LinePlot, ErrBar, and barPlot, added an input parameter 'xFlag' to indicate if x-axis variable should be
+#  regarded as a continuous variable ('xFlag = TRUE') or a factor ('xFlag = FALSE')
+#
+#v1.1.2 created on May 3, 2019
+#  (1) force 'group' to be factor in Hist, Den, Dendro
+#  (2) fixed a bug in 'Box': when x=NULL, xLevel was not assigned correctly
+#
+#v1.1.0 created on April 27, 2019
+#  (1) added input parameter 'xLevel' to functions 'LinePlot', 'Box', 'ErrBar'
+#  (2) set 'jitter.width = 0.2' in 'Box'
+#  (3) added function 'addTheme'
+#  (4) revised functions by adding background and grid through input 
+#      parameter 'addThemeFlag'
+#
 #v1.0.9 created on April 10, 2019
 #  (1) modify XYscatter. all plots have the same x-axis and y-axis range
 #  (2) set delta = 0.2 (instead of 0.5) in BiAxisErrBar
@@ -82,6 +97,7 @@
 # general graph function ####
 statVisual = function(type, ...) {
   switch(type,
+    barPlot = barPlot(...),
     BiAxisErrBar = BiAxisErrBar(...),
     Box = Box(...),
     BoxROC = BoxROC(...),
@@ -95,6 +111,7 @@ statVisual = function(type, ...) {
     LinePlot = LinePlot(...),
     PCA_score = PCA_score(...),
     PVCA = PVCA(...),
+    stackedBarPlot = stackedBarPlot(...),
     Volcano = Volcano(...),
     XYscatter=XYscatter(...)
   )
@@ -168,7 +185,7 @@ XYscatter = function(data, x, y, group = NULL,
 		     point.size = 3, 
                      xlab = x, ylab = y, group.lab = group, 
 		     title = "Scatter plot", 
-                     theme_classic = TRUE, ...) {
+                     theme_classic = TRUE, addThemeFlag = TRUE, ...) {
   # scatterplot x vs y
 
   myx=data[, c(x)]
@@ -236,6 +253,12 @@ XYscatter = function(data, x, y, group = NULL,
   if (theme_classic) {
     g = g + theme_classic()
   }
+
+  if(addThemeFlag)
+  {
+    g=addTheme(g)
+  }
+
   # return plot
   g
 }
@@ -243,9 +266,10 @@ XYscatter = function(data, x, y, group = NULL,
 # Box Plot ####
 Box=function (data, x = NULL, y, group = NULL, fill = NULL, theme_classic = TRUE, 
           fill.alpha = 0.7, box.width = 0.5, dodge.width = 0.8, jitter = TRUE, 
-          jitter.alpha = 0.7, jitter.width = 1, point.size = 1, 
+          jitter.alpha = 0.7, jitter.width = 0.2, point.size = 1, 
           xlab = x, ylab = y, group.lab = group, fill.lab = group, 
           title = "Boxplot", line = "mean", line.color = "black", 
+	  xLevel = NULL, addThemeFlag = TRUE,
           ...) 
 {
   
@@ -258,10 +282,26 @@ Box=function (data, x = NULL, y, group = NULL, fill = NULL, theme_classic = TRUE
   #   scale_x_discrete(drop = F) +
   #   scale_fill_discrete(drop = F) +
   #   labs(title = paste('p-value =', pval), color = j, x = NULL)
-  
+
+#  if(!is.null(x) && !is.null(xLevel))
+#  {
+#    data[, c(x)] = factor(data[, c(x)],
+#                       levels = xLevel, 
+#                       ordered = TRUE)
+#  }
+#
+
+
   if (is.null(x)) {
     if (!is.null(group)) 
       x = group
+    if(!is.null(xLevel))
+    {
+      data[, c(x)] = factor(data[, c(x)],
+                       levels = xLevel, 
+                       ordered = TRUE)
+    }
+
     if(!is.factor(data[, c(x)]))
     {
       data[,c(x)]=factor(data[, c(x)])
@@ -279,10 +319,17 @@ Box=function (data, x = NULL, y, group = NULL, fill = NULL, theme_classic = TRUE
       
   }
   else {
+ 
     if(!is.factor(data[, c(x)]))
     {
-      data[,c(x)]=factor(data[, c(x)])
-    }
+      data[, c(x)]=factor(data[, c(x)])
+      if(!is.null(xLevel))
+      {
+        data[, c(x)] = factor(data[, c(x)],
+                           levels = xLevel, 
+                           ordered = TRUE)
+      }
+    } 
 
     if(!is.factor(data[,c(group)]))
     {
@@ -340,6 +387,12 @@ Box=function (data, x = NULL, y, group = NULL, fill = NULL, theme_classic = TRUE
     g = do.call(FACET, c(list(g = g), FACET_args))
   }
   g = do.call(THEME, c(list(g = g), THEME_args))
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+
   g
 }
 
@@ -347,11 +400,13 @@ Box=function (data, x = NULL, y, group = NULL, fill = NULL, theme_classic = TRUE
 
 ErrBar = function(data, x = NULL, y, group = NULL, 
 		  semFlag = TRUE,
+		  xFlag = FALSE,
 		  bar.width = 0.5, dodge.width = 0.8, 
                   jitter = TRUE, jitter.alpha = 0.7, jitter.width = 0.1, 
                   line = 'mean', line.color = 'black', 
                   xlab = x, ylab = line, theme_classic = TRUE, 
-                  group.lab = group, title = "Dot plots", ...) {
+                  group.lab = group, title = "Dot plots", 
+		  xLevel = NULL, addThemeFlag = TRUE, ...) {
   # main function of error bar
   
   # x: variable on x axis
@@ -370,6 +425,20 @@ ErrBar = function(data, x = NULL, y, group = NULL,
   # group.lab: label of group variable
   # title: title of plot
   
+  if(xFlag == FALSE && !is.factor(data[, c(x)]))
+  {
+    data[, c(x)]=factor(data[, c(x)])
+    if(!is.null(x) && !is.null(xLevel))
+    {
+      data[, c(x)] = factor(data[, c(x)],
+                         levels = xLevel, 
+                         ordered = TRUE)
+    }
+  } else {
+    data[, c(x)]=as.numeric(data[, c(x)])
+  }
+ 
+
   mu = NULL
   myse = NULL
 
@@ -413,6 +482,7 @@ ErrBar = function(data, x = NULL, y, group = NULL,
   if (is.null(x)) {
     if (!is.null(group)) {
       x = group
+
       g = ggplot(data.plot, aes_string(x = ifelse(is.null(x), 1, x), y, color = group)) +
         geom_errorbar(
           aes(ymin = mu - myse, ymax = mu + myse),
@@ -487,6 +557,11 @@ ErrBar = function(data, x = NULL, y, group = NULL,
   }
   # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
   
   # return plot
   g
@@ -495,21 +570,32 @@ ErrBar = function(data, x = NULL, y, group = NULL,
 
 # line plot ####
 LinePlot = function(data, x, y, sid, group = NULL, 
+		    xFlag = FALSE,
                     points = TRUE, point.size = 1, theme_classic = TRUE, 
-                    xlab = x, ylab = y, title = "Trajectory plot", ...) {
+                    xlab = x, ylab = y, title = "Trajectory plot", 
+		    xLevel = NULL, addThemeFlag = TRUE, ...) {
   # main function of line plot
   
   # x: variable on x axis
   # y: variable on y axis
+  # xFlag = TRUE indicates 'x' is a continuous variable; otherwise, 'x' will be forced to be a factor
   # sid: subject id
   # group: varaible to group different lines
   # xlab: x axis label
   # ylab: y axis label
   # title: title of plot
 
-  if(!is.factor(data[, c(x)]))
+  if(xFlag == FALSE && !is.factor(data[, c(x)]))
   {
     data[, c(x)]=factor(data[, c(x)])
+    if(!is.null(xLevel))
+    {
+      data[, c(x)] = factor(data[, c(x)],
+                         levels = xLevel, 
+                         ordered = TRUE)
+    }
+  } else {
+    data[, c(x)]=as.numeric(data[, c(x)])
   }
   
   if(!is.factor(data[, c(group)]))
@@ -558,6 +644,11 @@ LinePlot = function(data, x, y, sid, group = NULL,
   # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
   
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+ 
   # return plot
   g
 }
@@ -567,7 +658,11 @@ LinePlot = function(data, x, y, sid, group = NULL,
 Hist = function(data, y, group = NULL, fill = group, 
                 border.color = NULL, inner.color = NULL, theme_classic = TRUE, 
                 bins = NULL, binwidth = NULL, alpha = 0.8, 
-                xlab = y, ylab = 'count', group.lab = group, title = "Histogram", ...) {
+                xlab = y, ylab = 'count', 
+		group.lab = group, 
+		title = "Histogram", 
+		addThemeFlag = TRUE,
+		...) {
   # main function of histogram
   
   # group: grouping variable, histogram border color
@@ -588,6 +683,8 @@ Hist = function(data, y, group = NULL, fill = group,
 
   if(!is.null(group))
   {
+    data[, c(group)]=factor(data[, c(group)]) 
+
     # QWL: add the following call of dots
     dots = list(...)
     if( !("facet.var" %in% names(dots)) )
@@ -651,6 +748,12 @@ Hist = function(data, y, group = NULL, fill = group,
   }
   # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+ 
   
   # return plot
   g
@@ -662,7 +765,9 @@ Hist = function(data, y, group = NULL, fill = group,
 Den = function(data, y, group = NULL, fill = group, 
                border.color = NULL, inner.color = NULL, theme_classic = TRUE, 
                xlab = y, ylab = 'density', group.lab = group, title = "Density plot",
-               alpha = 0.3, ...) {
+               alpha = 0.3, 
+	       addThemeFlag = TRUE,
+	       ...) {
   # main function of density
   
   # group: grouping variable, density border color
@@ -681,6 +786,8 @@ Den = function(data, y, group = NULL, fill = group,
 
   if(!is.null(group))
   {
+    data[, c(group)]=factor(data[, c(group)]) 
+
     # QWL: add the following call of dots
     dots = list(...)
     if( !("facet.var" %in% names(dots)) )
@@ -741,6 +848,12 @@ Den = function(data, y, group = NULL, fill = group,
   }
   # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+ 
   
   # return plot
   g
@@ -756,35 +869,35 @@ GapBox = function(data, x = NULL, y, gap, ratio = c(7, 1, 2)) {
   #     1 for gap, 2 for upper jitter part
   
   # calculate transformed value range for boxplot
-  min.y = min(dat[, y], na.rm = TRUE)
-  max.y = max(dat[, y], na.rm = TRUE)
+  min.y = min(data[, y], na.rm = TRUE)
+  max.y = max(data[, y], na.rm = TRUE)
   a = min(gap)
   b = max(gap)
   alpha = ratio[1]/(a - min.y)
   charlie = ratio[3]/(max.y - b)
-  y.new.1 = (dat[dat[, y] <= a, y] - min.y) * alpha
-  y.new.3 = (dat[dat[, y] > b, y]) * charlie + (ratio[1] + ratio[2] - b* charlie)
+  y.new.1 = (data[data[, y] <= a, y] - min.y) * alpha
+  y.new.3 = (data[data[, y] > b, y]) * charlie + (ratio[1] + ratio[2] - b* charlie)
   y.new = c(y.new.1, y.new.3)
-  dat[, paste0(y, '.new')] = y.new
+  data[, paste0(y, '.new')] = y.new
   
   y.breaks = c(0, 
                max(y.new.1), 
                ratio[1], 
                ratio[1] + ratio[2], 
                max(y.new.3))
-  y.labels = c(min(dat[, y]) %>% signif(2), 
-               max(dat[dat[, y] <= a, y]) %>% signif(2), 
+  y.labels = c(min(data[, y]) %>% signif(2), 
+               max(data[data[, y] <= a, y]) %>% signif(2), 
                a, 
                b, 
-               max(dat[dat[, y] > b, y]) %>% signif(2)) 
+               max(data[data[, y] > b, y]) %>% signif(2)) 
   
   if (!is.null(x)) {
-    g = ggplot(data = dat %>% filter_(paste0(y, '.new<min(y.new.3)')), aes_string(x, paste0(y, '.new'))) + 
+    g = ggplot(data = data %>% filter_(paste0(y, '.new<min(y.new.3)')), aes_string(x, paste0(y, '.new'))) + 
       geom_boxplot(outlier.size = -1) + 
       geom_jitter() +
-      geom_jitter(data = dat %>% filter_(paste0(y, '.new>=min(y.new.3)')), 
+      geom_jitter(data = data %>% filter_(paste0(y, '.new>=min(y.new.3)')), 
                   aes_string(x, paste0(y, '.new'))) + 
-      geom_rect(aes(xmin = 0, xmax = length(unique(dat[, x])) + 1, 
+      geom_rect(aes(xmin = 0, xmax = length(unique(data[, x])) + 1, 
                     ymin = ratio[1], ymax = ratio[1] + ratio[2]), fill = 'white') + 
       scale_y_continuous(breaks = y.breaks, labels = y.labels)
   }
@@ -808,7 +921,7 @@ Dendro = function(x, group = NULL, xlab = NULL, ylab = NULL, title = NULL,
                   cor.use = 'pairwise.complete.obs', cor.method = 'pearson', 
                   distance = 'rawdata', distance.method = 'euclidean', 
                   hclust.method = 'complete', yintercept = NULL, 
-                  theme_classic = TRUE, ...) {
+                  theme_classic = TRUE, addThemeFlag = TRUE, ...) {
   # main function of dendrogram
   # QWL: commented out 'require'
   #require(dplyr)
@@ -828,6 +941,11 @@ Dendro = function(x, group = NULL, xlab = NULL, ylab = NULL, title = NULL,
   # hclust.method: agglomeration method for hierarchical cluastering
   #     for details check ?hclust
   # yintercept: vertical line
+
+  if(!is.null(group))
+  {
+    group=as.factor(group)
+  }
   
   # calculate distance
   y = NULL
@@ -897,7 +1015,12 @@ Dendro = function(x, group = NULL, xlab = NULL, ylab = NULL, title = NULL,
   g = g + labs(title = title) + xlab(label=xlab) + ylab(label=ylab)
   #g = g + labs(x = ylab, y = xlab, title = title) +
     coord_flip()
-  
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+   
   g
 }
 
@@ -915,7 +1038,7 @@ Volcano = function(resFrame, stats, p.value, group = NULL,
                                                -log10(max(resFrame[p.adjust(resFrame[, p.value], method = 'fdr') <= 0.05, p.value]))), 
                                 label = c('p value: 0.05', 'Bonferroni: 0.05', 'FDR: 0.05')), 
                    rowname.var = NULL, point.size = 3, 
-                   theme_classic = TRUE, ...) {
+                   theme_classic = TRUE, addThemeFlag = TRUE, ...) {
   
   # QWL: commented out 'require'
   #require(ggrepel)
@@ -977,7 +1100,11 @@ Volcano = function(resFrame, stats, p.value, group = NULL,
   # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
   
-  
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+   
   # return plot
   g
 }
@@ -1036,7 +1163,8 @@ Heat = function(data,
                  cluster_rows = TRUE,
                  cluster_cols = TRUE,
                  color = colorRampPalette(rev(brewer.pal(n = 7, name ="RdYlBu")))(100),
-                 angle_col = c("270", "0", "45", "90", "315"), ...) {
+                 angle_col = c("270", "0", "45", "90", "315"), 
+		 ...) {
 
   # separate grouping column for y axis grouping color
   if (is.null(group)) {
@@ -1074,12 +1202,28 @@ Heat = function(data,
            ...)
 }
 
+# https://www.datanovia.com/en/blog/ggplot-theme-background-color-and-grids/
+  
+addTheme=function(g)
+{
+# 1. Change plot panel background color to lightblue
+# and the color of major/grid lines to white
+g2 = g + theme(
+  panel.background = element_rect(fill = "#BFD5E3", colour = "#6D9EC1",
+                                  size = 2, linetype = "solid"),
+  panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                  colour = "white"), 
+  panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                  colour = "white")
+)
+}
 
 # Boxplot with ROC curve ####
 BoxROC = function(data, group.var, y, 
                   box.xlab = group.var, box.ylab = y, box.group.lab = group.var, 
                   jitter.alpha = 0.8, jitter.width = 0.1, point.size = 3, 
-                  roc.xlab = 'Specificity', roc.ylab = 'Sensitivity') {      
+                  roc.xlab = 'Specificity', roc.ylab = 'Sensitivity',
+		  addThemeFlag = TRUE) {      
   # main function of boxplot with roc curve
   
   # QWL: commented out 'require'
@@ -1111,6 +1255,11 @@ BoxROC = function(data, group.var, y,
     xlab(label = box.xlab)+ylab(label = box.ylab)+
     theme_classic()
 
+   if(addThemeFlag)
+   {
+     g.box=addTheme(g.box)
+   }
+
   # roc curve
   #roc.results = roc(data[, group.var], data[, yhat])                 # Original
   # QWL: added 'pROC::' before 'roc'
@@ -1131,6 +1280,11 @@ BoxROC = function(data, group.var, y,
     labs(title = paste0('AUC: ', round(roc.results$auc, 4)))+ 
     xlab(label = roc.xlab)+ylab(label = roc.ylab) +
     theme_classic()
+
+   if(addThemeFlag)
+   {
+     g.roc=addTheme(g.roc)
+   }
 
   # combine boxplot and roc curve
   g = arrangeGrob(g.box, g.roc, widths = c(0.5, 0.5))
@@ -1160,105 +1314,106 @@ seFunc = function(s, na.rm = TRUE) {
 
 
 
-# Bi-axis error bar plot cannot be achieved from ggplot2 easily
-# here use base plot
-# R base plot way
-# y.left - character indicating the variable on left y-axis
-# y.right - character indicating the variable on right y-axis
-# col.left - color for variable on left y-axis
-# col.right - color for variable on right y-axis
-BiAxisErrBar = function(dat, 
-			group, 
-			y.left, 
-			y.right, 
-			col.left = "blue", 
-			col.right = "red", 
-			delta=0.2, 
-			xlab=group, 
-			ylab.left=y.left, 
-			ylab.right=y.right, 
-			title = "Bi-Axis Error Bar Plot",
-			las=1,
-                        angle=90, 
-			length = 0.05, 
-			line=2, 
-			type="b", 
-			code=3, 
-			legend.position="topright",
-			...) {
-  # main function of bi-axis error bar plot
-  #require(dplyr)
-  # summary input data
-  muleft = NULL
-  muright = NULL
-  seleft = NULL
-  seright = NULL
-  dat.summary = dat %>% group_by_(group) %>%
-    summarise_(muleft = paste0('mean(', y.left, ', na.rm = TRUE)'), 
-               muright = paste0('mean(', y.right, ', na.rm = TRUE)'), 
-               seleft = paste0('seFunc(', y.left, ', na.rm = TRUE)'), 
-               seright = paste0('seFunc(', y.right, ', na.rm = TRUE)')) %>%
-    mutate(lowerleft = muleft - seleft, upperleft = muleft + seleft,
-           lowerright = muright - seright, upperright = muright + seright) %>%
-    as.data.frame()
-  
-  # set plot margins, leave more space on right side for second y axis labels
-  par(mar = c(5, 4, 2, 6) + 0.1)
-  
-  xnm=dat.summary[, group]
-  myx=seq_along(xnm)
-  # draw 1st error bar plot with y axis on left side
-  lower = dat.summary[, 'lowerleft']
-  upper = dat.summary[, 'upperleft']
-  len=length(myx)
-  myxlim=c(myx[1]-2*delta, myx[len]+2*delta)
-  
-  plot(x=myx, y=dat.summary[, 'muleft'], 
-       ylim = range(c(lower, upper)), col = col.left, 
-       xlab=xlab, ylab = NA, axes=FALSE, type=type,
-       xlim=myxlim, main=title, lty=1, pch=1, ...)
-  box()
-  axis(side = 2)
-  axis(side=1, at=myx, labels = xnm, las=las)
-  
-  # draw lower and upper values: 
-  # length: arrow width; angle: arrow angle; code: arrow type; code = 3 for error bar
-  arrows(x0=myx, y0=lower, x1=myx, y1=upper, length=length, angle=angle, code=code, col=col.left)
-  # choose which side of axis for editting: 1: bottom; 2: left; 3: top; 4: right
-  # add labels for axis: line: space between label and axis
-  mtext(text = ylab.left, side = 2, line = line)
-  
-  
-  # create new plot on top of first plot
-  par(new = TRUE)
-  
-  # draw 2nd error bar plot with y axis on right side
-  # axes = F: no repeated axes
-  # xlab = NA: no repeated x labels
-  lower = dat.summary[, 'lowerright']
-  upper = dat.summary[, 'upperright']
-  myx2=myx +delta
-  plot(x=myx2, y=dat.summary[, 'muright'], xlim=myxlim,
-       ylim = range(c(lower, upper)), col = col.right, 
-       xlab=NA, ylab = NA, axes=FALSE, type=type, lty=2, pch=2)
-  
-  # draw lower and upper values: 
-  # length: arrow width; angle: arrow angle; code: arrow type; code = 3 for error bar
-  arrows(x0=myx2, y0=lower, x1=myx2, y1=upper, length=length, angle=angle, code=code, col=col.right)
-  # add labels for axis: line: space between label and axis
-  mtext(text = ylab.right, side = 4, line = line)
-  
-  axis(side=4)
-  
-  legend(x=legend.position, legend=c(y.left, y.right),
-	 col=c(col.left, col.right), lty=1:2, pch=1:2)
-}
+## Bi-axis error bar plot cannot be achieved from ggplot2 easily
+## here use base plot
+## R base plot way
+## y.left - character indicating the variable on left y-axis
+## y.right - character indicating the variable on right y-axis
+## col.left - color for variable on left y-axis
+## col.right - color for variable on right y-axis
+#BiAxisErrBar = function(dat, 
+#			group, 
+#			y.left, 
+#			y.right, 
+#			col.left = "blue", 
+#			col.right = "red", 
+#			delta=0.2, 
+#			xlab=group, 
+#			ylab.left=y.left, 
+#			ylab.right=y.right, 
+#			title = "Bi-Axis Error Bar Plot",
+#			las=1,
+#                        angle=90, 
+#			length = 0.05, 
+#			line=2, 
+#			type="b", 
+#			code=3, 
+#			legend.position="topright",
+#			...) {
+#  # main function of bi-axis error bar plot
+#  #require(dplyr)
+#  # summary input data
+#  muleft = NULL
+#  muright = NULL
+#  seleft = NULL
+#  seright = NULL
+#  dat.summary = dat %>% group_by_(group) %>%
+#    summarise_(muleft = paste0('mean(', y.left, ', na.rm = TRUE)'), 
+#               muright = paste0('mean(', y.right, ', na.rm = TRUE)'), 
+#               seleft = paste0('seFunc(', y.left, ', na.rm = TRUE)'), 
+#               seright = paste0('seFunc(', y.right, ', na.rm = TRUE)')) %>%
+#    mutate(lowerleft = muleft - seleft, upperleft = muleft + seleft,
+#           lowerright = muright - seright, upperright = muright + seright) %>%
+#    as.data.frame()
+#  
+#  # set plot margins, leave more space on right side for second y axis labels
+#  par(mar = c(5, 4, 2, 6) + 0.1)
+#  
+#  xnm=dat.summary[, group]
+#  myx=seq_along(xnm)
+#  # draw 1st error bar plot with y axis on left side
+#  lower = dat.summary[, 'lowerleft']
+#  upper = dat.summary[, 'upperleft']
+#  len=length(myx)
+#  myxlim=c(myx[1]-2*delta, myx[len]+2*delta)
+#  
+#  plot(x=myx, y=dat.summary[, 'muleft'], 
+#       ylim = range(c(lower, upper)), col = col.left, 
+#       xlab=xlab, ylab = NA, axes=FALSE, type=type,
+#       xlim=myxlim, main=title, lty=1, pch=1, ...)
+#  box()
+#  axis(side = 2)
+#  axis(side=1, at=myx, labels = xnm, las=las)
+#  
+#  # draw lower and upper values: 
+#  # length: arrow width; angle: arrow angle; code: arrow type; code = 3 for error bar
+#  arrows(x0=myx, y0=lower, x1=myx, y1=upper, length=length, angle=angle, code=code, col=col.left)
+#  # choose which side of axis for editting: 1: bottom; 2: left; 3: top; 4: right
+#  # add labels for axis: line: space between label and axis
+#  mtext(text = ylab.left, side = 2, line = line)
+#  
+#  
+#  # create new plot on top of first plot
+#  par(new = TRUE)
+#  
+#  # draw 2nd error bar plot with y axis on right side
+#  # axes = F: no repeated axes
+#  # xlab = NA: no repeated x labels
+#  lower = dat.summary[, 'lowerright']
+#  upper = dat.summary[, 'upperright']
+#  myx2=myx +delta
+#  plot(x=myx2, y=dat.summary[, 'muright'], xlim=myxlim,
+#       ylim = range(c(lower, upper)), col = col.right, 
+#       xlab=NA, ylab = NA, axes=FALSE, type=type, lty=2, pch=2)
+#  
+#  # draw lower and upper values: 
+#  # length: arrow width; angle: arrow angle; code: arrow type; code = 3 for error bar
+#  arrows(x0=myx2, y0=lower, x1=myx2, y1=upper, length=length, angle=angle, code=code, col=col.right)
+#  # add labels for axis: line: space between label and axis
+#  mtext(text = ylab.right, side = 4, line = line)
+#  
+#  axis(side=4)
+#  
+#  legend(x=legend.position, legend=c(y.left, y.right),
+#	 col=c(col.left, col.right), lty=1:2, pch=1:2)
+#}
 
 ###########################################
 # PVCA plot
 # QWL: revise code so that the rows of gene_data are genes; columns are subjects
 PVCA = function(clin_data, clin_subjid, gene_data, pct_threshold = 0.8, 
-                batch.factors, theme_classic = FALSE, ...) {
+                batch.factors, theme_classic = FALSE, addThemeFlag = TRUE, 
+		...) {
   
   # QWL: commented out 'require'
   #require(pvca)
@@ -1299,6 +1454,12 @@ PVCA = function(clin_data, clin_subjid, gene_data, pct_threshold = 0.8,
   
   # axis label position
   g = do.call(THEME, c(list(g = g), THEME_args))
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
+ 
   # return plot
   g
 }
@@ -1307,7 +1468,8 @@ PVCA = function(clin_data, clin_subjid, gene_data, pct_threshold = 0.8,
 PCA_score = function(prcomp_obj, data, dims=c(1,2), color = NULL, 
                      MD = TRUE, loadings = FALSE, 
                      loadings.color = 'black', loadings.label = FALSE,
-                     title = "pca plot") {
+                     title = "pca plot",
+		     addThemeFlag = TRUE) {
   # main function of PCA plot
   
   # QWL: commented out 'require'
@@ -1371,12 +1533,19 @@ PCA_score = function(prcomp_obj, data, dims=c(1,2), color = NULL,
         geom_text_repel(data = loading_data, aes(PC1,PC2, label = rownames(loading_data)))
     }
   }
+
+  if(addThemeFlag)
+  {
+    score_plot = addTheme(score_plot)
+  }
+ 
   score_plot
 }
 
 # QWL: change input 'fit_cv_glmnet' to a few inputs: 'x' and 'y'
 #cv_glmnet_plot = function(fit_cv_glmnet) {
-cv_glmnet_plot = function(x, y, family="binomial", ...) {
+cv_glmnet_plot = function(x, y, family="binomial", addThemeFlag = TRUE,
+			  ...) {
 
   fit_cv_glmnet = cv.glmnet(x = x, y = y, family=family, ...)
 
@@ -1404,6 +1573,11 @@ cv_glmnet_plot = function(x, y, family="binomial", ...) {
   x_breaks_new = c(x_breaks_orig, log(fit_cv_glmnet$lambda.min), log(fit_cv_glmnet$lambda.1se))
   x_labels_new = c(x_breaks_orig, 'lambda.min', 'lambda.1se')
   g = g + scale_x_continuous(breaks = x_breaks_new, labels = x_labels_new)
+
+  if(addThemeFlag)
+  {
+    g = addTheme(g)
+  }
 
   g
 }
@@ -1453,7 +1627,8 @@ regularization_plot = function(fit_glmnet, var.label = TRUE, theme_classic = TRU
 
 
 
-ImpPlot = function(model, theme_classic = TRUE, n.trees = NULL, ...) {
+ImpPlot = function(model, theme_classic = TRUE, n.trees = NULL, 
+		   addThemeFlag = TRUE, ...) {
   # main function of variable importance for randomForest model &
   # relative influence for gbm model
   
@@ -1517,7 +1692,11 @@ ImpPlot = function(model, theme_classic = TRUE, n.trees = NULL, ...) {
   }
   g = g + theme(legend.position = 'none')
 
+  if(addThemeFlag)
+  {
+    g=addTheme(g)
+  }
+
   g
 }
-
 

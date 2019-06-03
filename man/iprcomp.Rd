@@ -23,9 +23,8 @@ iprcomp(dat, center = TRUE, scale. = FALSE)
 }
 }
 \details{
-We first calculate covariance matrix of (row centered and/or scaled) data matrix
-using R function \code{cov} with input option \code{use=} 
-\dQuote{na.or.complete}. We then obtain eigen vectors (i.e., projection directions). Finally we project each rows of \code{dat} along the eigenvector directions. For elements having missing values, we set them as \code{NA} before projecting.
+We first set missing values as median of the corresponding variable, then call the function \code{prcomp}.
+This is a very simple solution. The user can use their own imputation methods before calling \code{prcomp}.
 }
 \value{
 A list of 3 elements

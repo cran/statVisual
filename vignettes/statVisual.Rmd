@@ -63,7 +63,7 @@ R (>=3.5.0) is required to run the R package *statVisual* properly.
 
 The following R packages are required to be installed before installing and running *statVisual*: 
 
-```{r echo=T, message=F}
+```{r eval = T, echo=T, message=F}
 # packages in Bioconductor
 library(Biobase)    # base package for Bioconductor
 library(limma)      # linear models for continuous omics data
@@ -86,6 +86,7 @@ library(gridExtra)  # Grid graphics
 library(knitr)      # dynamic report generation
 library(methods)    # formal methods and classes
 library(pROC)       # display and analyze ROC curves
+library(multigroup) # multigroup data analysis
 library(randomForest) # Random forest variable importance
 library(reshape2)   # flexibly reshape data
 library(rmarkdown)  # dynamic documents for R
@@ -95,7 +96,7 @@ library(stats)      # basic statistical functions
 ```
 
 To load *statVisual* package, please type the following R statement:
-```{r echo=T, message=F}
+```{r eval = T, echo=T, message=F}
 library(statVisual)
 ```
 To check the information about the *statVisual* package, please type the
@@ -123,12 +124,14 @@ Below is a list of currently available functions in *statVisual* for plotting.
 
 * Analysis focusing on two outcome variables:
 	+ XYscatter - Compare groups based on scatter plots
+	+ stackedBarPlot - Compare groups based on bar plots
 	+ BiAxisErrBar - Compare groups based on bi-axis error bar plots
 
 * Analysis of longitudinal data:
 	+ LinePlot - Compare groups based on trajectory plots (commonly used to visualize tumor volume data)
 	+ Box - Compare groups based on boxplots across time
 	+ ErrBar - Compare groups based on dotplots across time
+	+ barPlot - Compare groups based on barplots across time
 
 * Analysis focusing on pattern detection:
 	+ Dendro - Compare groups based on dendrogram of hierarchical clustering
@@ -190,6 +193,19 @@ data(esSim)
 print(dim(esSim))
 print(esSim)
 ```
+
+* genoSim: A simulated genotype dataset
+
+  *genoSim* is an ExpressionSet object containing genotype data of 10 SNPs for 100 subjects (50 cases and 50 controls). Eight of SNPs have same minor allele frequency ($MAF=0.2$) between cases and controls. The other 2 SNPs have the different MAFs between cases and controls ($MAF_{cases}=0.4$ and $MAF_{controls}=0.2$).
+
+  We assume Hardy-Weinberg Equilibrium. That is, the genotype for wild-type 
+  homozygote is $(1-MAF)^2$; the genotype for heterozygote is $2*MAF*(1-MAF)$;
+  and the genotype for mutant homozygote is $MAF^2$.
+
+The phenotype of the ExpressionSet object contains two variables: subject id ($sid$) and case-control status ($grp$).
+
+The feature data contains two variables: snp id ($snp$) and
+SNP significance status ($memSNPs$).
 
 * longDat: A simulated dataset for longitudinal data analysis
 
@@ -316,7 +332,7 @@ Hist(
 
 We also can use the wrapper function *statVisual*:
 
-```{r message = F, echo = T,warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'Hist', 
        data = pDat, 
        y = 'probe1', 
@@ -343,7 +359,7 @@ Den(
 We can also use the wrapper function *statVisual*:
 
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'Den',
     data = pDat, 
     y = 'probe1', 
@@ -378,7 +394,7 @@ XYscatter(
 ```
 
 We can also use the wrapper function *statVisual*:
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'XYscatter',
   data = diffCorDat, 
   x = 'probe1', 
@@ -387,6 +403,71 @@ statVisual(type = 'XYscatter',
   title = 'Scatter Plot: probe1 vs probe2')
 ```
 \pagebreak
+
+## Compare Groups Based on Bar Plots
+For two categorical variables, we can use the function *stackedBarPlot*
+to show their association.
+
+For example, in the ExpressionSet object *genoSim*, there are simulated genotypes of 10 SNPs for 50 cases and 50 control. If we would like to know if the pattern of the genotypes of the SNP 1 in cases
+is the same as that in controls, we can draw bar plots.
+
+```{r message = F, eval = T, echo = T, warning = F}
+data(genoSim)
+
+pDat = pData(genoSim)
+geno = exprs(genoSim)
+
+pDat$snp1 = geno[1,]
+print(table(pDat$snp1, pDat$grp, useNA="ifany"))
+
+```
+
+
+```{r message = F, eval = F, echo = T, warning = F}
+stackedBarPlot(dat = pDat, 
+	       catVar = "snp1", 
+	       group = "grp", 
+               xlab = "snp1", 
+	       ylab = "Count", 
+	       group.lab = "grp",
+               title = "Stacked barplots of counts for SNP1",
+               catVarLevel = NULL)
+```
+
+
+We can also use the wrapper function *statVisual*:
+```{r message = F, eval = T, echo = T, warning = F}
+statVisual(type = 'stackedBarPlot',
+  dat = pDat, 
+  catVar = "snp1", 
+  group = "grp", 
+  xlab = "snp1", 
+  ylab = "Count", 
+  group.lab = "grp",
+  title = "Stacked barplots of counts for SNP1",
+  catVarLevel = NULL)
+```
+
+Note that the input parameter *catVarLevel* can be used to change the order of the values of
+*catVar* shown in x-axis. For example,
+
+```{r message = F, eval = T, echo = T, warning = F}
+statVisual(type = 'stackedBarPlot',
+  dat = pDat, 
+  catVar = "snp1", 
+  group = "grp", 
+  xlab = "snp1", 
+  ylab = "Count", 
+  group.lab = "grp",
+  title = "Stacked barplots of counts for SNP1",
+  catVarLevel = c(2, 0, 1))
+
+```
+
+
+\pagebreak
+
+
 
 ## Compare Groups Based on Bi-Axis Error Bar Plots
 
@@ -397,39 +478,37 @@ The function *BiAxisErrBar* can do this task.
 Each bar plot displays mean \eqn{+/-}{+/-} standard error. 
 
 ```{r message = F, eval = T, echo = T, warning = F}
-# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
-pDat$probe1 = dat[1,]
-pDat$probe2 = dat[2,]
-pDat$probe3 = dat[3,]
-pDat$probe4 = dat[4,]
-pDat$probe5 = dat[5,]
-pDat$probe6 = dat[6,]
 
-print(pDat[1:2, ])
+library(tidyverse)
+library(ggplot2)
+library(multigroup)
 
-pDat$grp = factor(pDat$grp)
+data(oliveoil)
+print(oliveoil[1:2,])
 
-# check histograms of probe 1 expression in cases and controls
-print(table(pDat$grp, useNA = "ifany"))
+print(table(oliveoil$Group, useNA="ifany"))
+
 ```
 
 ```{r message = F, eval = F, echo = T, warning = F}
-BiAxisErrBar( 
-  dat = pDat, 
-  group = 'grp', 
-  y.left = 'probe1', 
-  y.right = 'probe5') 
+BiAxisErrBar(
+  dat= oliveoil,
+  group = "Group",
+  y.left = "K270",
+  y.right = "syrup")
+
 ```
 
 We can also use the wrapper function *statVisual*:
 
 
-```{r message = F, echo = T, warning = F}
-statVisual(type = 'BiAxisErrBar', 
-           dat = pDat, 
-           group = 'grp', 
-           y.left = 'probe1', 
-           y.right = 'probe5') 
+```{r message = F, eval = T, echo = T, warning = F}
+statVisual(type="BiAxisErrBar",
+  dat= oliveoil,
+  group = "Group",
+  y.left = "K270",
+  y.right = "syrup")
+
 ```
 \pagebreak
 
@@ -454,7 +533,7 @@ LinePlot(
 
 We also can use the wrapper function *statVisual*:
 
-```{r message = F, echo = T,warning = F}
+```{r message = F, eval = T, echo = T,warning = F}
 statVisual(type = "LinePlot",
   data = longDat,
   x = 'time',
@@ -490,7 +569,7 @@ Box(
 
 Or we can use the wrapper function *statVisual*:
 
-```{r message = F, echo = T,warning = F}
+```{r message = F, eval = T, echo = T,warning = F}
 statVisual(type = 'Box', 
            data = longDat, 
            x = 'time', 
@@ -520,7 +599,7 @@ ErrBar(
 
 We can also use the wrapper function *statVisual*:
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'ErrBar', 
   data = longDat, 
   x = 'time', 
@@ -531,6 +610,39 @@ statVisual(type = 'ErrBar',
 ```
 
 \pagebreak
+
+## Compare Groups Based on Bar Plots Across Time
+Similarly, we can use barplots to replace boxplots and add error bar (mean +/- se) for each barplot. The reason why not add error bar to boxplot in *Box* function is to avoid confusing between the error bars and bars in boxplots. 
+The function to compare groups based on bar plots across time
+is *barPlot*.
+Note that this function is suitable for the scenarios where
+observations of all subjects are measured at a few fixed time points.
+
+
+```{r message = F, eval = F, echo = T, warning = F}
+barPlot(
+  data = longDat, 
+  x = 'time', 
+  y = 'y', 
+  group = 'grp',
+  title = "Bar plots across time") 
+```
+
+We can also use the wrapper function *statVisual*:
+
+```{r message = F, eval = T, echo = T, warning = F}
+statVisual(type = 'barPlot', 
+  data = longDat, 
+  x = 'time', 
+  y = 'y', 
+  group = 'grp',
+  title = "Bar plots across time") 
+
+```
+
+\pagebreak
+
+
 
 # Analysis focusing on pattern detection:
 
@@ -546,9 +658,35 @@ The wrapper function *Dendro* can do this task:
 
 ```{r message = F, eval = T, echo = T, warning = F}
 library(ggdendro)
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+# check histograms of probe 1 expression in cases and controls
+pDat$grp=factor(pDat$grp)
+print(table(pDat$grp, useNA = "ifany"))
+
+
 ```
 
 ```{r message = F, eval = F, echo = T, warning = F}
+
 Dendro(
        x = pDat[, c(3:8)], 
        group = pDat$grp)
@@ -556,7 +694,7 @@ Dendro(
 
 We also can use the wrapper function *statVisual*:
 
-```{r message = F, echo = T,warning = F}
+```{r message = F, eval = T, echo = T,warning = F}
 statVisual(type = 'Dendro', 
            x = pDat[, c(3:8)], 
            group = pDat$grp)
@@ -574,7 +712,10 @@ The wrapper function *PCA_Score* can do this task.
 
 Note that he R function *prcomp* could not handle data with missing values. 
 We developed an improved function *iprcomp* so that it 
-can handle missing values by replacing the missing values in the dataset by zero.
+can handle missing values by replacing the missing values in the dataset 
+by median of the corresponding variable. This is just a temporary solution.
+The user can use their own imputation method before calling R function
+*prcomp*.
 
 We first check if *iprcomp* could capture the pattern in the original data without missing value.
 
@@ -613,23 +754,45 @@ plot(x = res.na$x[,1], y = res.na$x[,2], xlab = "PC1", ylab  =  "PC2", main = "w
 par(mfrow = c(1,1))
 ```
 
-It looks like *iprcomp* captures the original pattern by replacing missing values with zeros. More thorough investigations are warranted.
+It looks like *iprcomp* captures the original pattern by replacing missing values with meidans of corresponding variables. More thorough investigations are warranted.
 
 We next draw pca plot based on the *esSim* dataset.
 
 ```{r message = F, eval = T, echo = T, warning = F}
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+# check histograms of probe 1 expression in cases and controls
+pDat$grp=factor(pDat$grp)
+print(table(pDat$grp, useNA = "ifany"))
+
+
 library(factoextra)
-
-
-pDat$grp = factor(pDat$grp)
-
 
 pca.obj = iprcomp(pDat[, c(3:8)], scale. = TRUE)
 
 # scree plot
 factoextra::fviz_eig(pca.obj, addlabels = TRUE)
+```
 
-
+```{r message = F, eval = F, echo = T, warning = F}
 PCA_score(prcomp_obj = pca.obj, 
           dims = c(1, 3),
           data = pDat, 
@@ -640,7 +803,7 @@ PCA_score(prcomp_obj = pca.obj,
 
 We can also use the wrapper function *statVisual*:
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'PCA_score',
            prcomp_obj = pca.obj, 
            dims = c(1, 2),
@@ -659,6 +822,32 @@ the bi-clustering results match the known group information, we can color
 the nodes (i.e., rownames of the heatmap) by groups.
 The function *Heat* can do this task:
 
+```{r message = F, eval = T, echo = T, warning = F}
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+pDat$grp=factor(pDat$grp)
+```
+
+
+
 ```{r message = F, eval = F, echo = T, warning = F}
 Heat(
      data = pDat[, c(2:8)], 
@@ -668,7 +857,7 @@ Heat(
 
 We also can use the wrapper function *statVisual*:
 
-```{r message = F, echo = T,warning = F}
+```{r message = F, eval = T, echo = T,warning = F}
 statVisual(type = 'Heat', 
            data = pDat[, c(2:8)], 
            group = 'grp')
@@ -692,6 +881,7 @@ proportion variance versus effects:
 library(pvca)
 
 # create a fake Batch variable
+data(esSim)
 esSim$Batch=c(rep("A", 4), rep("B", 6), rep("C", 10))
 ```
 
@@ -705,7 +895,7 @@ PVCA(
 
 We can also use the wrapper function *statVisual*:
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 
 statVisual(type = 'PVCA',
            clin_data = pData(esSim), 
@@ -784,7 +974,7 @@ Volcano(
 We also can use the wrapper function *statVisual*:
 
 
-```{r message = F, echo = T,warning = F}
+```{r message = F, eval = T, echo = T,warning = F}
 statVisual(type = 'Volcano',
            resFrame = resFrame, 
            stats = 'logFC', 
@@ -842,7 +1032,7 @@ BoxROC(
 
 We also can use the wrapper function *statVisual*:
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'BoxROC', 
            data = pDat, 
            group = 'grp', 
@@ -909,7 +1099,7 @@ cv_glmnet_plot(x = as.matrix(pDat[, c(3:8)]),
 
 We can also use the wrapper function *statVisual*:
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = "cv_glmnet_plot",
            x = as.matrix(pDat[, c(3:8)]), 
            y = pDat$grp, 
@@ -929,6 +1119,29 @@ library(dplyr)
 library(randomForest)
 library(tibble)
 
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+pDat$grp=factor(pDat$grp)
+
+
 rf_m = randomForest(
   x = pDat[, c(3:8)], 
   y = pDat$grp, 
@@ -943,7 +1156,7 @@ ImpPlot(rf_m)
 
 We can also use the wrapper function *statVisual*:
 
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 statVisual(type = 'ImpPlot', rf_m)
 ```
 
@@ -956,8 +1169,31 @@ function *ggpairs* that
 can put pairwise histograms, estimated densities, scatter plots, 
 boxplots, correlation coefficients in one figure. 
 For example,
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 library(GGally)
+
+data(esSim)
+dat = exprs(esSim)
+print(dim(dat))
+print(dat[1:2,])
+
+# phenotype data
+pDat = pData(esSim)
+print(dim(pDat))
+print(pDat[1:2,])
+
+# choose the first 6 probes (3 OE probes, 2 UE probes, and 1 NE probe)
+pDat$probe1 = dat[1,]
+pDat$probe2 = dat[2,]
+pDat$probe3 = dat[3,]
+pDat$probe4 = dat[4,]
+pDat$probe5 = dat[5,]
+pDat$probe6 = dat[6,]
+
+print(pDat[1:2, ])
+
+pDat$grp=factor(pDat$grp)
+
 
 ggpairs(data = pDat, 
 	mapping = ggplot2::aes_string(color = 'grp'), 
@@ -979,7 +1215,7 @@ ggpairs(data = pDat,
 ```	 
 
 *GGally* also provides a function *ggcorr* to superimpose correlations onto the heatmap. For instance,
-```{r message = F, echo = T, warning = F}
+```{r message = F, eval = T, echo = T, warning = F}
 
 ggcorr(data = pDat[, c(3:8)], 
        method = 'pairwise', 
