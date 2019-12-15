@@ -1,11 +1,11 @@
 Package: statVisual
 Type: Package
 Title: Statistical Visualization Tools
-Version: 1.1.8
-Date: 2019-06-02
+Version: 1.1.9
+Date: 2019-12-10
 Authors@R: c(
              person("Wenfei", "Zhang", role = c("aut", "cre"),
-                     email = "Wenfei.Zhang@sanofi.com"),
+                     email = "Wenfeizhang@gmail.com"),
              person("Weiliang", "Qiu", role = c("aut", "ctb"),
                      email = "Weiliang.Qiu@sanofi.com"),
              person("Xuan", "Lin", role=c("aut", "ctb"),
@@ -25,11 +25,11 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
-Packaged: 2019-06-03 04:07:02 UTC; I0388414
+Packaged: 2019-12-10 20:14:45 UTC; i0388414
 Author: Wenfei Zhang [aut, cre],
   Weiliang Qiu [aut, ctb],
   Xuan Lin [aut, ctb],
   Donghui Zhang [aut, ctb]
-Maintainer: Wenfei Zhang <Wenfei.Zhang@sanofi.com>
+Maintainer: Wenfei Zhang <Wenfeizhang@gmail.com>
 Repository: CRAN
-Date/Publication: 2019-06-03 14:10:03 UTC
+Date/Publication: 2019-12-15 16:30:05 UTC

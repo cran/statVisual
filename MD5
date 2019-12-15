@@ -1,4 +1,4 @@
-7dd80cbcaa07dade1980b6c585f7bff4 *DESCRIPTION
+7d55fe127827e462c2efeb4fc12ddf21 *DESCRIPTION
 4c6a98905bfb2c02a0adb5fe49434a7f *NAMESPACE
 0ca73c1b288d6ea471c73250874ef1c2 *NEWS
 4600b067677fce362be552511a87729c *R/BiAxisErrBar.R
@@ -6,14 +6,14 @@ b4335a1a45c9ef8d74ace88b28c2c312 *R/barPlot.R
 33a642a9030ff873b35f8f8b01a5a466 *R/iprcomp.R
 8ad22a26cc847b373576bb172694f27f *R/stackedBarPlot.R
 f76678f907e015281c059c994ad3de25 *R/statVisual.R
-0f0ec761096457bb11b242c7b0bdd0ac *build/vignette.rds
+c0aa2d51a13405a7eba05412f0dc55f8 *build/vignette.rds
 a3cdf0739b01dd1d11447ea26d1e90fd *data/diffCorDat.rda
 e30ce3150c69b173fc812728e07ef32c *data/esSim.rda
 ec4fd121e208760fd926a087c9f2f680 *data/genoSim.rda
 b3d9113c4447a0a0b134892667421fdf *data/longDat.rda
 a15cb6ccf73de138366bde5bcdf555e2 *inst/doc/statVisual.R
 dd889eb69bf74dc79944af0e4b2d3611 *inst/doc/statVisual.Rmd
-1ff329440ea7178883823194ce628a07 *inst/doc/statVisual.html
+cfcf8f8339f2405971a43433251f0c73 *inst/doc/statVisual.html
 1a6c6d5c413c3d2a3fc751f5938432f3 *man/BiAxisErrBar.Rd
 f9be11e2294a38f5eea21ea4425d1a6c *man/Box.Rd
 cf8067af9b8781258af980e315337acf *man/BoxROC.Rd
