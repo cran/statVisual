@@ -91,11 +91,6 @@ importFrom(rpart.plot,
 importFrom(forestplot,
            forestplot)
 
-importFrom(gplots,
-           heatmap.2,
-           redgreen
-           )
-
 importFrom(randomForest,
            MDSplot)
 

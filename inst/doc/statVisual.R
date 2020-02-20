@@ -1,4 +1,4 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   echo = FALSE,
   collapse = TRUE,
@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 
-## ----eval = T, echo=T, message=F-----------------------------------------
+## ----eval = T, echo=T, message=F----------------------------------------------
 # packages in Bioconductor
 library(Biobase)    # base package for Bioconductor
 library(limma)      # linear models for continuous omics data
@@ -25,13 +25,11 @@ library(ggfortify)  # data visualization tools for statistical analysis results
 library(ggplot2)    # create graphics based on "The Grammer of Graphics"
 library(ggrepel)    # tidy text display in ggplot
 library(glmnet)     # cross validation plot for glmnet
-library(gplots)     # tools for plotting data
 library(grDevices)  # R graphics devices and support for colors and fonts
 library(gridExtra)  # Grid graphics
 library(knitr)      # dynamic report generation
 library(methods)    # formal methods and classes
 library(pROC)       # display and analyze ROC curves
-library(multigroup) # multigroup data analysis
 library(randomForest) # Random forest variable importance
 library(reshape2)   # flexibly reshape data
 library(rmarkdown)  # dynamic documents for R
@@ -39,35 +37,35 @@ library(rpart.plot) # plots for recursive partitioning for classification, regre
 library(tibble)     # simple data frames
 library(stats)      # basic statistical functions
 
-## ----eval = T, echo=T, message=F-----------------------------------------
+## ----eval = T, echo=T, message=F----------------------------------------------
 library(statVisual)
 
-## ----eval = F, echo = T, message = F-------------------------------------
+## ----eval = F, echo = T, message = F------------------------------------------
 #  library(help = statVisual)
 
-## ----eval = F, echo = T, message = F-------------------------------------
+## ----eval = F, echo = T, message = F------------------------------------------
 #  help(Hist)
 #  ?Hist
 
-## ----eval = T, echo = T, message = F-------------------------------------
+## ----eval = T, echo = T, message = F------------------------------------------
 data(diffCorDat)
 
 print(dim(diffCorDat))
 print(diffCorDat[1:2,])
 
-## ----eval = T, echo = T, message = F-------------------------------------
+## ----eval = T, echo = T, message = F------------------------------------------
 data(esSim)
 
 print(dim(esSim))
 print(esSim)
 
-## ----eval = T, echo = T, message = F-------------------------------------
+## ----eval = T, echo = T, message = F------------------------------------------
 data(longDat)
 
 print(dim(longDat))
 print(longDat[1:2,])
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 # expression data
 dat = exprs(esSim)
 print(dim(dat))
@@ -90,34 +88,34 @@ pDat$probe1 = dat[1,]
 pDat$grp=factor(pDat$grp)
 print(table(pDat$grp, useNA = "ifany"))
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  Hist(
 #       data = pDat,
 #       y = 'probe1',
 #       group = 'grp')
 #  
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'Hist', 
        data = pDat, 
        y = 'probe1', 
        group = 'grp') 
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  
 #  Den(
 #      data = pDat,
 #      y = 'probe1',
 #      group = 'grp')
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'Den',
     data = pDat, 
     y = 'probe1', 
     group = 'grp') 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  XYscatter(
 #    data = diffCorDat,
 #    x = 'probe1',
@@ -126,7 +124,7 @@ statVisual(type = 'Den',
 #    title = 'Scatter Plot: probe1 vs probe2')
 #  
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'XYscatter',
   data = diffCorDat, 
   x = 'probe1', 
@@ -134,7 +132,7 @@ statVisual(type = 'XYscatter',
   group = 'grp', 
   title = 'Scatter Plot: probe1 vs probe2')
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 data(genoSim)
 
 pDat = pData(genoSim)
@@ -144,7 +142,7 @@ pDat$snp1 = geno[1,]
 print(table(pDat$snp1, pDat$grp, useNA="ifany"))
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  stackedBarPlot(dat = pDat,
 #  	       catVar = "snp1",
 #  	       group = "grp",
@@ -154,7 +152,7 @@ print(table(pDat$snp1, pDat$grp, useNA="ifany"))
 #                 title = "Stacked barplots of counts for SNP1",
 #                 catVarLevel = NULL)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'stackedBarPlot',
   dat = pDat, 
   catVar = "snp1", 
@@ -165,7 +163,7 @@ statVisual(type = 'stackedBarPlot',
   title = "Stacked barplots of counts for SNP1",
   catVarLevel = NULL)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'stackedBarPlot',
   dat = pDat, 
   catVar = "snp1", 
@@ -177,35 +175,35 @@ statVisual(type = 'stackedBarPlot',
   catVarLevel = c(2, 0, 1))
 
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 
 library(tidyverse)
 library(ggplot2)
-library(multigroup)
-
-data(oliveoil)
-print(oliveoil[1:2,])
-
-print(table(oliveoil$Group, useNA="ifany"))
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+print(head(mtcars))
+
+print(table(mtcars$gear, useNA="ifany"))
+
+
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
+#  
 #  BiAxisErrBar(
-#    dat= oliveoil,
-#    group = "Group",
-#    y.left = "K270",
-#    y.right = "syrup")
+#    dat = mtcars,
+#    group = "gear",
+#    y.left = "mpg",
+#    y.right = "wt")
 #  
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
-statVisual(type="BiAxisErrBar",
-  dat= oliveoil,
-  group = "Group",
-  y.left = "K270",
-  y.right = "syrup")
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
+statVisual(type = "BiAxisErrBar",
+  dat= mtcars,
+  group = "gear",
+  y.left = "mpg",
+  y.right = "wt")
 
 
-## ----message = F, eval = F, echo = T,warning = F-------------------------
+## ----message = F, eval = F, echo = T,warning = F------------------------------
 #  
 #  LinePlot(
 #    data = longDat,
@@ -215,7 +213,7 @@ statVisual(type="BiAxisErrBar",
 #    group = 'grp')
 #  
 
-## ----message = F, eval = T, echo = T,warning = F-------------------------
+## ----message = F, eval = T, echo = T,warning = F------------------------------
 statVisual(type = "LinePlot",
   data = longDat,
   x = 'time',
@@ -223,10 +221,10 @@ statVisual(type = "LinePlot",
   sid = 'sid',
   group = 'grp')
 
-## ----message = F, eval = T, echo = T,warning = F-------------------------
+## ----message = F, eval = T, echo = T,warning = F------------------------------
 library(dplyr)
 
-## ----message = F, eval = F, echo = T,warning = F-------------------------
+## ----message = F, eval = F, echo = T,warning = F------------------------------
 #  Box(
 #      data = longDat,
 #      x = 'time',
@@ -234,7 +232,7 @@ library(dplyr)
 #      group = 'grp',
 #      title = "Boxplots across time")
 
-## ----message = F, eval = T, echo = T,warning = F-------------------------
+## ----message = F, eval = T, echo = T,warning = F------------------------------
 statVisual(type = 'Box', 
            data = longDat, 
            x = 'time', 
@@ -242,7 +240,7 @@ statVisual(type = 'Box',
            group = 'grp',
 	   title = "Boxplots across time") 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  ErrBar(
 #    data = longDat,
 #    x = 'time',
@@ -250,7 +248,7 @@ statVisual(type = 'Box',
 #    group = 'grp',
 #    title = "Dot plots across time")
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'ErrBar', 
   data = longDat, 
   x = 'time', 
@@ -259,7 +257,7 @@ statVisual(type = 'ErrBar',
   title = "Dot plots across time") 
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  barPlot(
 #    data = longDat,
 #    x = 'time',
@@ -267,7 +265,7 @@ statVisual(type = 'ErrBar',
 #    group = 'grp',
 #    title = "Bar plots across time")
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'barPlot', 
   data = longDat, 
   x = 'time', 
@@ -276,7 +274,7 @@ statVisual(type = 'barPlot',
   title = "Bar plots across time") 
 
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(ggdendro)
 data(esSim)
 dat = exprs(esSim)
@@ -304,18 +302,18 @@ print(table(pDat$grp, useNA = "ifany"))
 
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  
 #  Dendro(
 #         x = pDat[, c(3:8)],
 #         group = pDat$grp)
 
-## ----message = F, eval = T, echo = T,warning = F-------------------------
+## ----message = F, eval = T, echo = T,warning = F------------------------------
 statVisual(type = 'Dendro', 
            x = pDat[, c(3:8)], 
            group = pDat$grp)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 # generate simulated data
 set.seed(1234567)
 dat.x = matrix(rnorm(500), nrow = 100, ncol = 5)
@@ -349,7 +347,7 @@ plot(x = res$x[,1], y = res$x[,2], xlab = "PC1", ylab  =  "PC2")
 plot(x = res.na$x[,1], y = res.na$x[,2], xlab = "PC1", ylab  =  "PC2", main = "with missing values")
 par(mfrow = c(1,1))
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 data(esSim)
 dat = exprs(esSim)
 print(dim(dat))
@@ -382,7 +380,7 @@ pca.obj = iprcomp(pDat[, c(3:8)], scale. = TRUE)
 # scree plot
 factoextra::fviz_eig(pca.obj, addlabels = TRUE)
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  PCA_score(prcomp_obj = pca.obj,
 #            dims = c(1, 3),
 #            data = pDat,
@@ -390,7 +388,7 @@ factoextra::fviz_eig(pca.obj, addlabels = TRUE)
 #            loadings = FALSE)
 #  
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'PCA_score',
            prcomp_obj = pca.obj, 
            dims = c(1, 2),
@@ -398,7 +396,7 @@ statVisual(type = 'PCA_score',
            color = 'grp',
            loadings = FALSE)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 data(esSim)
 dat = exprs(esSim)
 print(dim(dat))
@@ -421,32 +419,32 @@ print(pDat[1:2, ])
 
 pDat$grp=factor(pDat$grp)
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  Heat(
 #       data = pDat[, c(2:8)],
 #       group = 'grp')
 #  
 
-## ----message = F, eval = T, echo = T,warning = F-------------------------
+## ----message = F, eval = T, echo = T,warning = F------------------------------
 statVisual(type = 'Heat', 
            data = pDat[, c(2:8)], 
            group = 'grp')
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(pvca)
 
 # create a fake Batch variable
 data(esSim)
 esSim$Batch=c(rep("A", 4), rep("B", 6), rep("C", 10))
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  PVCA(
 #       clin_data = pData(esSim),
 #       clin_subjid = "sid",
 #       gene_data = exprs(esSim),
 #       batch.factors = c("grp", "Batch"))
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 
 statVisual(type = 'PVCA',
            clin_data = pData(esSim), 
@@ -455,7 +453,7 @@ statVisual(type = 'PVCA',
            batch.factors = c("grp", "Batch"))
 
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(ggrepel)
 library(limma)
 
@@ -500,7 +498,7 @@ print(resFrame[1:2,])
 print(table(resFrame$sigFlag, useNA = "ifany"))
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  Volcano(
 #    resFrame = resFrame,
 #    stats = 'logFC',
@@ -510,7 +508,7 @@ print(table(resFrame$sigFlag, useNA = "ifany"))
 #    point.size = 1)
 #  
 
-## ----message = F, eval = T, echo = T,warning = F-------------------------
+## ----message = F, eval = T, echo = T,warning = F------------------------------
 statVisual(type = 'Volcano',
            resFrame = resFrame, 
            stats = 'logFC', 
@@ -520,7 +518,7 @@ statVisual(type = 'Volcano',
            point.size = 1)
 
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(dplyr)
 library(gridExtra)
 
@@ -545,21 +543,21 @@ pDat$probe1 = dat[1,]
 print(table(pDat$grp, useNA = "ifany"))
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  BoxROC(
 #    data = pDat,
 #    group = 'grp',
 #    y = 'probe1',
 #    point.size = 1)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'BoxROC', 
            data = pDat, 
            group = 'grp', 
            y = 'probe1', 
            point.size = 1)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(dplyr)
 library(tibble)
 library(glmnet)
@@ -599,18 +597,18 @@ print(table(pDat$grp, useNA = "ifany"))
 pDat$grp = factor(pDat$grp)
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  cv_glmnet_plot(x = as.matrix(pDat[, c(3:8)]),
 #                 y = pDat$grp,
 #                 family = "binomial")
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = "cv_glmnet_plot",
            x = as.matrix(pDat[, c(3:8)]), 
            y = pDat$grp, 
            family = "binomial")
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(dplyr)
 library(randomForest)
 library(tibble)
@@ -645,13 +643,13 @@ rf_m = randomForest(
 )
 
 
-## ----message = F, eval = F, echo = T, warning = F------------------------
+## ----message = F, eval = F, echo = T, warning = F-----------------------------
 #  ImpPlot(rf_m)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 statVisual(type = 'ImpPlot', rf_m)
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 library(GGally)
 
 data(esSim)
@@ -695,7 +693,7 @@ ggpairs(data = pDat,
 	ylab = 'Y', 
 	title = 'Title')
 
-## ----message = F, eval = T, echo = T, warning = F------------------------
+## ----message = F, eval = T, echo = T, warning = F-----------------------------
 
 ggcorr(data = pDat[, c(3:8)], 
        method = 'pairwise', 

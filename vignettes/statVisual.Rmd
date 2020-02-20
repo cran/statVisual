@@ -80,13 +80,11 @@ library(ggfortify)  # data visualization tools for statistical analysis results
 library(ggplot2)    # create graphics based on "The Grammer of Graphics"
 library(ggrepel)    # tidy text display in ggplot
 library(glmnet)     # cross validation plot for glmnet
-library(gplots)     # tools for plotting data
 library(grDevices)  # R graphics devices and support for colors and fonts
 library(gridExtra)  # Grid graphics
 library(knitr)      # dynamic report generation
 library(methods)    # formal methods and classes
 library(pROC)       # display and analyze ROC curves
-library(multigroup) # multigroup data analysis
 library(randomForest) # Random forest variable importance
 library(reshape2)   # flexibly reshape data
 library(rmarkdown)  # dynamic documents for R
@@ -481,21 +479,21 @@ Each bar plot displays mean \eqn{+/-}{+/-} standard error.
 
 library(tidyverse)
 library(ggplot2)
-library(multigroup)
 
-data(oliveoil)
-print(oliveoil[1:2,])
 
-print(table(oliveoil$Group, useNA="ifany"))
+print(head(mtcars))
+
+print(table(mtcars$gear, useNA="ifany"))
 
 ```
 
 ```{r message = F, eval = F, echo = T, warning = F}
+
 BiAxisErrBar(
-  dat= oliveoil,
-  group = "Group",
-  y.left = "K270",
-  y.right = "syrup")
+  dat = mtcars,
+  group = "gear",
+  y.left = "mpg",
+  y.right = "wt")
 
 ```
 
@@ -503,11 +501,11 @@ We can also use the wrapper function *statVisual*:
 
 
 ```{r message = F, eval = T, echo = T, warning = F}
-statVisual(type="BiAxisErrBar",
-  dat= oliveoil,
-  group = "Group",
-  y.left = "K270",
-  y.right = "syrup")
+statVisual(type = "BiAxisErrBar",
+  dat= mtcars,
+  group = "gear",
+  y.left = "mpg",
+  y.right = "wt")
 
 ```
 \pagebreak

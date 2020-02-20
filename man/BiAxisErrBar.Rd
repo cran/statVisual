@@ -105,25 +105,24 @@ Donghui Zhang <Donghui.Zhang@sanofi.com>
 
 library(tidyverse)
 library(ggplot2)
-library(multigroup)
 
-data(oliveoil)
-print(oliveoil[1:2,])
+print(head(mtcars))
 
-print(table(oliveoil$Group, useNA="ifany"))
+print(table(mtcars$gear, useNA="ifany"))
 
-statVisual(type="BiAxisErrBar",
-  dat= oliveoil,
-  group = "Group",
-  y.left = "K270",
-  y.right = "syrup")
+statVisual(type = "BiAxisErrBar",
+  dat= mtcars,
+  group = "gear",
+  y.left = "mpg",
+  y.right = "wt")
+
 
 
 BiAxisErrBar(
-  dat= oliveoil,
-  group = "Group",
-  y.left = "K270",
-  y.right = "syrup")
+  dat = mtcars,
+  group = "gear",
+  y.left = "mpg",
+  y.right = "wt")
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

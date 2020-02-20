@@ -1,3 +1,9 @@
+v1.2.1 created on Feb. 19, 2019
+  (1) removed the dependency on R package 'gplots'
+  
+v1.2.0 created on Feb. 19, 2019
+  (1) removed the dependency on R package 'multigroup'
+  
 v1.1.8 created on June 02, 2019
   (1) For functions LinePlot, ErrBar, and barPlot, added an input parameter 'xFlag' to indicate if x-axis variable should be
   regarded as a continuous variable ('xFlag = TRUE') or a factor ('xFlag = FALSE')
